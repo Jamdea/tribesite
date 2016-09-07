@@ -1,0 +1,100 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+.berkeley-blue {
+  background-color: #003262;
+}
+/* Nav Bar */
+.calcite-title-custom {
+  color: #c4820e !important;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 44px !important;
+}
+.calcite-title-sub a {
+  color: #cfdd45;
+}
+.calcite-title-sub a:hover, .calcite-title-sub a:focus {
+  color: #ddd5c7;
+  text-decoration: none;
+}
+.calcite-title-sub-custom {
+  font-size: 24px;
+}
+.calcite-dropdown .dropdown-menu {
+  overflow-y: auto;
+}
+/* Datepicker css override */
+.dropdown-menu {
+  z-index: 1100;
+}
+.dropdown-menu.datepicker {
+  max-width: none;
+  min-width: 225px;
+  font-size: 14px;
+}
+/* Additonal glyphicons */
+.glyphicon-ruler {
+  background-image: url("../images/glyphicons-778-ruler-alt.png");
+  width: 14px;
+  height: 14px;
+  -webkit-filter: invert(40%);
+  filter: invert(40%);
+}
+.glyphicon-layer {
+  background-image: url("../images/glyphicons-320-sort.png");
+  width: 14px;
+  height: 14px;
+  -webkit-filter: invert(40%);
+  filter: invert(40%);
+}
+/* Modal */
+.modal {
+  overflow-y: auto;
+  letter-spacing: 0;
+}
+/* Map Switrs modal */
+#modalQueryMain .form-inline, #modalQueryMain .form-inline .radio {
+  margin-bottom: 10px;
+}
+#modalQueryMain .form-inline .radio {
+  display: block;
+}
+#modalQueryMain .form-inline .form-control, #radioGroup {
+  display: inline-block;
+}
+#county {
+  width: 200px;
+}
+#city, #stroute, #direct {
+  margin-left: 10px;
+  height: 123px;
+}
+#city {
+  width: 215px;
+}
+#stroute, #direct {
+  width: 100px;
+}
+#location .form-group {
+  vertical-align: top;
+  margin-bottom: 15px;
+}
+#location > div:nth-child(2) {
+  margin-left: 30px;
+}
+.factor-selected {
+  float: right;
+  font-size: 0.8em;
+  margin-top: 3px;
+}
+#modalQueryMain .list-group-item {
+  padding: 0 5px;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+#modalQueryMain .list-inline a {
+  display: inline-block;
+}

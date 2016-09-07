@@ -1,0 +1,103 @@
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-size: 17px;
+  height: 100%;
+}
+.berkeley-blue {
+  background-color: #003262 !important;
+}
+
+.buttonDiv {
+  position: absolute;
+  top: 145px;
+  left: 15px;
+  z-index: 50;
+}
+.buttonDiv div {
+  margin-top: 10px;
+}
+
+/* Calcite Sytle Override */
+.calcite .esriSimpleSliderTL {
+  top: 0;
+  left: 0;
+}
+.calcite-maps .navbar-info {
+  left: 120px;
+  cursor: auto;
+}
+.calcite .arcgisSearch .searchGroup .searchInput {
+  font-size: inherit;
+}
+.navbar-brand-custom {
+  color: #f8f8f8;
+  padding: 11px 9px 8px;
+  font-size: 44px;
+  cursor: pointer;
+  height: 100%;
+}
+.navbar-brand-custom:focus,.navbar-brand-custom:hover {
+  text-decoration: none
+}
+.navbar-brand-custom span {
+  color: #c4820e;
+  line-height: 1.1em;
+  font-weight: 600;
+  height: auto;
+  max-height: 2.19em;
+  text-decoration: none;
+}
+@media (min-width: 768px) {
+  .navbar>.container-fluid .navbar-brand-custom {
+    margin-left: -15px
+  }
+}
+@media (max-width: 767px) {
+  .calcite-maps .navbar-info {
+    width:calc(100% - 200px)
+  }
+  .calcite-maps .calcite-text-light .dropdown-menu li>a {
+    color: #fff;
+  }
+  .calcite-maps .calcite-text-light .dropdown-menu .active>a,.calcite-maps .calcite-text-light .dropdown-menu .active>a:focus,.calcite-maps .calcite-text-light .dropdown-menu .active>a:hover,.calcite-maps .calcite-text-light .dropdown-menu li>a:focus,.calcite-maps .calcite-text-light .dropdown-menu li>a:hover {
+    color: #c5c5c5;
+  }
+}
+.calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.active>a, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.active>a:focus, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.active>a:hover, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.open>a, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.open>a:focus, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>.open>a:hover, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>li>a:focus, .calcite-maps .calcite-text-light .navbar-collapse .navbar-nav>li>a:hover {
+  background-image: linear-gradient(to top,transparent 94%,#f8f8f8 94%,#f8f8f8 100%);
+  transition: color 150ms linear,text-decoration 150ms linear;
+  color: #c5c5c5;
+  background-color: transparent;
+}
+.calcite-maps .calcite-text-light .navbar-toggle:focus, .calcite-maps .calcite-text-light .navbar-toggle:hover {
+  background-image: linear-gradient(to top,transparent 94%,#f8f8f8 94%,#f8f8f8 100%);
+  transition: color 150ms linear,text-decoration 150ms linear;
+  color: #c5c5c5;
+  background-color: transparent;
+}
+.calcite-maps .calcite-text-light .navbar-toggle {
+  border: none;
+  color: #f8f8f8;
+}
+.calcite-maps .navbar-toggle {
+  padding: 19px 15px 20px;
+  margin: 0 15px;
+}
+.calcite-maps .navbar-info a:hover, .calcite-maps .navbar-info a:focus {
+  color: #c5c5c5;
+  text-decoration: none;
+}
+.calcite-maps .navbar-info a {
+  color: #f8f8f8;
+}
+/* End Calcite Sytle Override */
+/* Additonal glyphicons */
+.glyphicon-ruler {
+  background-image: url("../images/glyphicons-778-ruler-alt.png");
+  width: 14px;
+  height: 14px;
+  -webkit-filter: invert(40%);
+  filter: invert(40%);
+}
