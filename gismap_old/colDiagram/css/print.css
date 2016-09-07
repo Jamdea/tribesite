@@ -1,0 +1,22 @@
+@page{ 
+    size: auto;   /* auto is the initial value */ 
+
+    /* this affects the margin in the printer settings */ 
+    margin: 10mm;  
+} 
+
+#printSettings{
+	display: none;
+}
+.input_entry_new{
+	border-bottom: 0 none;
+}
+#mapPane{
+	margin-top:0 !important;
+}
+#printPane{
+	padding:0 !important;
+}
+#printPage {
+	overflow:hidden;
+}

@@ -1,0 +1,353 @@
+@import "//js.arcgis.com/3.2/js/dojo/dijit/themes/claro/claro.css";
+@import "//js.arcgis.com/3.2/js/esri/css/esri.css";
+/*  DIAGRAM MAP ORGANIZATION  */
+html {
+	width: 100%;
+	height: 100%;
+}
+:focus{
+	outline: none; /*Get rid of that annoying highlighting feature in google Chrome*/
+}
+body {
+	height: 100%;
+	overflow: hidden;
+	font-family: "helvetica neue", helvetica, arial, sans-serif !important;
+	/*
+	
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: 0;
+	overflow: hidden;
+	background-color: #CCCCCC,
+	*/
+}
+#loadingOverlay {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	background-color: white; 
+	z-index: 200;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+#printPage {
+	overflow-x: hidden;
+	overflow-y: auto;
+	width: 100%;
+	height: 100%;
+	background-color: #CCCCCC;
+}
+#printPane{
+	width:100%;
+	height:100%;
+	background-color:white;
+	margin:0 auto;
+}
+#mapPane {
+	width: 100%; 
+	height: 100%;
+	/* Style for printing view*/
+	margin-left: auto;
+	margin-right: auto;
+	/*
+	background-color: white;
+	border:1px SOLID #bfbfbf; 
+	width: 100%; 
+	padding: 2.5%;
+	padding-bottom: 2.5%;
+	padding-top: 1.5%;
+	
+	overflow: hidden;
+	border: 0px;
+	
+	*/
+}
+#objContents{
+	padding: 0px;
+	/*border-left: 1px solid #9A9A9A;*/
+}
+.claro .dijitSplitterV, .claro .dijitGutterV{
+	border-right: 1px solid #9A9A9A;
+}
+.addBorder{
+	border: 1px solid #9A9A9A;
+}
+#dateArea {
+	/*
+	background-color: white;
+	font-size: 14px;
+	height: 1.5%;
+	margin-top: 0.5%;
+	*/
+	float: right;
+	display: none;
+	margin-right:10px;
+	margin-top:-5px;
+	text-align:right
+} 
+#mapBox {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+}
+#map_canvas{
+	width: 100%; 
+	height: 100%;
+	margin: auto; 
+	overflow: visible; 
+	visibility: visible;
+}
+#details_port{
+	background-color: white;
+	width: 800px;
+	border: 0; 
+	padding: 0;
+	overflow: hidden;
+	font-size: 0.9em;
+}
+#details_land{
+	width: 280px;
+	padding: 0;
+	background-color: rgba(200, 200, 200, 0.4);
+	/*
+	
+	z-index:100;
+	height: 800px;
+	border: 0px;
+	padding: 0 2px 0 0;
+	overflow: hidden;
+	*/
+	
+}
+.dijitSplitterV {
+	background-color: white !important;
+}
+#settingPane{
+	font-size: 0.9em;
+	height: 25px;
+	bottom: 0;  
+	position: absolute;
+	width: 100%;
+	background-color: #F1F1F1;
+	border-top: 1px solid #9A9A9A;
+	z-index: 99;
+	overflow: hidden;
+	white-space: nowrap;
+}
+#workingSettings{
+	height: 25px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+#printSettings{
+	padding: 2px 4px 4px 4px;
+	position: absolute;
+	visibility: hidden;
+	z-index: 99;
+	background-color: #F1F1F1;
+	border-width: 0 1px 1px 1px;
+	border-color: #9A9A9A;
+	border-style: solid;
+	width:270px;
+	left:50%;
+	right:50%;	
+	text-align:center;
+	margin-left:-140px;
+}
+/*  DIAGRAM MAP LEGEND  */
+.col_land  .dijitTitlePaneTitle{
+	font-size: 1.05em;
+	padding: 3px;
+}
+.legend_td{
+	width: 25%;
+	vertical-align: middle;
+}
+.legend_row{
+	font-weight: normal;
+	padding: 0 5px 0 5px;
+}
+.legend_title{   
+	float:left;
+/*
+	top: 20%;
+	position: absolute;
+	left: 2px;
+	z-index: 0;
+*/
+}
+
+.legend_span{
+	float:right;
+/*
+	text-align: right;
+	font-weight: bold;
+	top: 20%;
+	position: absolute;
+	right: 4px;
+	z-index: 1;
+*/
+}
+
+.diagram_row{
+	width: 90%;
+	margin-left: 5%;
+	height: 24px;
+	/*position: relative;*/
+}
+.diagram_row_port{
+	width: 90%;
+	margin-left: 5%;
+	height: 20px;
+	/*position: relative;*/
+}
+.gmnoprint{
+	display:block;
+}
+img { -ms-interpolation-mode: bicubic; }
+
+
+/*  DIAGRAM SETTINGS ORGANIZATION  */
+.parameter{
+	position: relative;
+	margin-top: 5px;
+	float: left;
+	padding: 0 10px 0 10px;
+	border-right: 1px DOTTED black;
+}
+/*  DIAGRAM INPUT FIELDS  */
+.input_entry_new{
+	width: 95%;
+}
+.input_entry_new_port{
+	width: 95%;
+	padding: 0.1em !important;
+	border-top:0 !important;
+	border-left:0 !important;
+	border-right:0 !important;
+}
+
+#accord_land{
+	border: none;
+	overflow: hidden;
+	padding: 0;
+}
+#pageHeader{
+	float:left;
+	width:100%;
+	background-color:white;
+}
+#pageBottom{
+	float:left;
+	width:100%;
+	overflow-y:auto;
+	background-color:rgb(230, 230, 230);
+}
+#pageEnd{
+	float:left;
+	background-color:rgb(200, 200, 200);
+	width:100%;
+	height:100%;
+}
+.pageTitle{
+	font-size: 2em;
+	padding: 5px;
+	font-family: sans-serif;
+	font-weight: 500;
+	font-variant: small-caps;
+	color: #262F38;	
+}
+#pageButtons{
+	z-index: 1;
+	float:right;	
+}
+
+/*  TRANSFORMER INPUT FIELDS  */
+/*
+.trans_row{
+	float: left;
+	height: 20px;
+	width: 220px;
+	left: 5px;
+	z-index: 5;
+	position: relative;
+}
+.trans_row>div{
+	height: 20px;
+	position: relative;
+	float: left;
+	padding-top: 5px;
+}
+.trans_slider{
+	width: 280px;
+}
+.trans_text{
+	font-weight: bold;
+	text-align: right;
+	padding-right: 5px;
+}
+.trans_input{
+	width: 40px; 
+	padding-right: 18px;
+}
+*/
+
+/* preview.png icon is created by http://www.aha-soft.com */
+.printPreviewButton { /*Custom class for the print preview button*/
+	background-image: url(../images/buttons/preview.png);
+	height: 24px;
+	width: 24px;
+}
+/*.printPreviewButton:hover {
+	background-image: url(../images/buttons/print_preview_icon_hover.png);
+	height: 32px;
+	width: 32px;
+}*/
+/*Custom class for the save button*/
+/*
+.saveButton { 
+	background-image: url(../images/buttons/save_icon.png);
+	height: 32px;
+	width: 32px;
+}
+*/
+/*.saveButton:hover {
+	background-image: url(../images/buttons/save_icon_hover.png);
+	height: 32px;
+	width: 32px;
+}*/
+
+/* back.png icon is created by http://www.aha-soft.com */
+.collapseButton{ /*Custom class for the collapse button*/
+	background-image: url(../images/buttons/back.png);
+	height: 24px;
+	width: 24px;
+}
+/*.collapseButton:hover {
+	background-image: url(../images/buttons/collapse_icon_hover.png);
+	height: 32px;
+	width: 32px;
+}*/
+/* forward.png icon is created by http://www.aha-soft.com */
+.expandButton{ /*Custom class for the expand button*/
+	background-image: url(../images/buttons/forward_text.png);
+	height: 110px;
+	width: 24px;
+}
+/*.expandButton:hover {
+	background-image: url(../images/buttons/expand_icon_hover.png);
+	height: 32px;
+	width: 32px;
+}*/
+.printButton{
+	background-image: url(../images/buttons/print.png);
+	height: 24px;
+	width: 24px;
+}
+.exitPrintPreviewButton{
+	background-image: url(../images/buttons/no.png);
+	height: 24px;
+	width: 24px;
+}

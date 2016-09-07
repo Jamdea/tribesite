@@ -1,0 +1,333 @@
+@import "http://serverapi.arcgisonline.com/jsapi/arcgis/3.2/js/dojo/dijit/themes/claro/claro.css";
+@import "http://serverapi.arcgisonline.com/jsapi/arcgis/3.2/js/dojo/dojox/layout/resources/floatingpane.css";
+@import "http://serverapi.arcgisonline.com/jsapi/arcgis/3.2/js/dojo/dojox/layout/resources/ResizeHandle.css";
+@import "http://serverapi.arcgisonline.com/jsapi/arcgis/3.2/js/dojo/dojox/layout/resources/ExpandoPane.css";
+@import "http://serverapi.arcgisonline.com/jsapi/arcgis/3.2/js/esri/css/esri.css";
+
+/* To fix chrome dijit toolbar hover bug */
+.dijitButton, .dijitButtonNode {
+  -webkit-transition-duration: 0.3s !important;
+  -moz-transition-duration: 0.3s !important;
+  transition-duration: 0.3s  !important;
+}
+/* To move add factors menu to the map position */
+/*
+#factor0, #factor1, #factor2{
+	margin-left:40px; 
+}
+*/
+/* scrollbar for collision factor */
+#submenu0_dropdown.dijitPopup.dijitMenuPopup{
+	overflow-y:scroll !important;
+	max-height:320px !important;
+}
+html, body { font-family: "helvetica neue", helvetica, arial, sans-serif !important; font-size: 90% !important; height: 100%; width: 100%; overflow:hidden; margin: 0; padding: 0; }
+#borderContainer { width: 100%; height: 100%; }
+#map {
+	border:solid 2px #808775;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	margin:5px;
+	padding:0px;
+}
+#leftContent1, #leftContent2 {
+	border:solid 1px #808775;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+}
+#mapcontents {
+	z-index: 100;
+	position:relative;
+	overflow: auto !important;
+	line-height:1.8em;
+	background-color: #FFF;
+	border: 1px solid #ccc;
+}
+#basemapContents  {
+	z-index: 101;
+	position:relative;
+	width: 130px;
+	height: 420px;
+	overflow: auto !important;
+	background-color: #FFF;
+	border: 1px solid #ccc;
+}
+.list{
+	line-height:1.5em;
+}
+.dojoxExpandoTitleNode{
+	font-size: 16px;
+}
+/* Toolbar icon */
+.zoominIcon { background-image:url(../images/nav_zoomin.png); width:16px; height:16px; }
+.zoomoutIcon { background-image:url(../images/nav_zoomout.png); width:16px; height:16px; }
+.zoomfullextIcon { background-image:url(../images/nav_fullextent.png); width:16px; height:16px; }
+.zoomprevIcon { background-image:url(../images/nav_previous.png); width:16px; height:16px; }
+.zoomnextIcon { background-image:url(../images/nav_next.png); width:16px; height:16px; }
+.panIcon { background-image:url(../images/nav_pan.png); width:16px; height:16px; }
+.deactivateIcon { background-image:url(../images/nav_decline.png); width:16px; height:16px; }
+.identifyIcon { background-image:url(../images/nav_identify.png); width:16px; height:16px; margin: 2px 2px 0px 0px;}
+/* selecting Tool */
+.freegon {background-image: url(../images/freegon.png);height: 18px;	width: 18px;margin-top: 4px;}
+.polygon {background-image: url(../images/polygon.png);height: 18px;	width: 18px;margin-top: 4px;}
+.line {background-image: url(../images/line.png);height: 18px;	width: 18px;margin-top: 4px;}
+.polyline {background-image: url(../images/polyline.png);height: 18px;	width: 18px;margin-top: 4px;}
+.multipoint{background-image: url(../images/multipoint.png);height: 18px;	width: 18px;margin-top: 4px;}
+.point {background-image: url(../images/point.png);height: 18px;	width: 18px;margin-top: 4px;}
+
+/* printing Tool */
+.esriPrintout{ color:#FF0033; font-size:14pt;}
+.esriPrintButton{ font-size:13pt; width:200px;}
+
+.esriMeasureIcon  {
+	background-image: url(../images/Measure_Area16.png);
+	background-repeat: no-repeat;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	margin: 2px 2px 0px 0px;
+}
+.esriPrintIcon {
+  background-image: url(../images/GenericPrint_B_16.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 2px 2px 0px 0px;
+}
+.esriLegendIcon{
+  background-image: url(../images/Legend16.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+.toolsIcon{
+  background-image: url(../images/analysis-icon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+
+/*
+.datelocationIcon{
+  background-image: url(../images/System-Map-icon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+*/
+.mapcontentsIcon{
+  background-image: url(../images/Layers-icon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+/*
+.optionsIcon{
+  background-image: url(../images/options-icon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+*/
+.basemapIcon{
+  background-image: url(../images/map-result.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+
+.selectingIcon{
+  background-image: url(../images/freegon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+.intersectionIcon{
+  background-image: url(../images/intersectionIcon.png);
+  background-repeat:no-repeat;
+  display:inline-block;
+  height:16px;
+  width:16px;
+  margin: 4px 0px 4px 4px;
+}
+/*Styles for the search box (find address or place)*/
+.searchwrapper{
+	background-image:url(../images/searchbar.png);
+	width:222px;
+	height:22px;
+	background-repeat:no-repeat;
+	padding:0px;
+	margin:0px;
+	position:relative;
+}
+.searchbox{
+	background-color: transparent;
+	font-style:oblique;
+	color:#777;
+	border: 0 none;
+	height: 18px;
+	left: 9px;
+	position: absolute;
+	top: 2px;
+	width: 182px;
+}
+.searchbox:focus{
+	outline:none;
+}
+.searchbutton{
+	background-color: transparent;
+	border: 0 none;
+	height: 21px;
+	left: 183px;
+	position: absolute;
+	top: 2px;
+	width: 36px;
+}
+.claro .dijitButtonContents {
+	height: 22px;
+}
+img{
+	/*vertical-align:text-top;*/
+	vertical-align:middle;
+} 
+
+/*CSS Styles for the measurement widget floating panel*/
+#floater, #options, #selecting, #printing, #user {
+	overflow:hidden;
+	background-color:#fff;
+	border: solid 1px #999;
+	border-radius:3px;
+	-moz-border-radius:3px;
+	-webkit-border-radius: 3px; 
+	padding:0px !important;
+} 
+
+.dojoxFloatingPaneContent{
+	font-family:"helvetica neue", helvetica, arial, sans-serif;
+	font-size:10.5pt;
+	font-weight:normal;
+	padding-bottom:4px;
+	margin: 4px 4px 4px 4px;
+	height: auto;
+}
+.dojoxFloatingPaneTitle{
+	font-family:"helvetica neue", helvetica, arial, sans-serif;
+	font-size:11pt;
+	font-weight:bold;
+	width:100%;
+	padding-left:8px;
+}		
+/*Define styles for the close button on the measure window panel*/
+#closeBtn, #closeBtn1, #closeBtn2, #closeBtn3, #closeBtn4 {
+	position:absolute;
+	top:6px;
+	right:4px;
+}
+#closeBtn img, #closeBtn1 img, #closeBtn2 img, #closeBtn3 img, #closeBtn4 img  {
+	border:none;
+}
+th {
+	text-align: right;
+}
+.download th{
+	font-size: 16px;
+	text-align: left;
+	height: 30px;
+}
+.download td{
+	height: 25px;
+	font-size: 15px;
+}
+.dijitTooltipContents {
+	position: relative;
+	overflow-y: auto;
+	overflow-x: hidden;
+	max-height: 350px;
+}
+/* Select Tool toggle color */
+.dijitToggleButtonChecked .dijitButtonNode { 
+	background-color:#6b85a0 !important;
+}
+.factors{
+	width:100%;
+	height:100%;
+	max-width:300px;
+	max-height:400px;
+	position:relative;
+	overflow-x:hidden;
+	overflow-y: auto !important; 
+	line-height:1.8em;	
+	background-color: #FFF;	
+	border: 1px solid #ccc;
+}
+/* Query box property */
+#query_box {
+	margin-left:10px;
+	overflow-x:hidden;
+	overflow-y: auto !important; 
+	/*
+	max-height:400px;
+	width:220px;
+	*/
+}
+div .query_group {
+	margin-top: 5px;
+	margin-left: 2px;
+	width: 210px;
+	float: left;
+	font-size: 12px;
+	position: relative;
+	/*margin-bottom: 2px;*/
+	display: block;
+}
+div .query_item {
+	margin-left: 3px;
+	width: 210px;
+	float: left;
+	position: relative;
+	/*top: -10px;*/
+	font-size: 11px;
+	font-weight: normal;
+	/*height: 14px;*/
+	overflow: hidden;
+	display: block;
+}
+.query_close {
+	visibility: hidden;
+	height: 16px;
+	width: 16px;
+	float: left;
+	position: relative;
+	/*top: -13px;*/
+}
+/* Popup Customize */
+.esriPopup .contentPane {
+	min-height:210px;
+}
+.esriViewPopup .break {
+	height: 1px;
+}
+/* Intersection Rank Dialog */
+#intersectionDialog_underlay {
+	background: none;
+}
+#interMsg {
+	color: red;
+}
