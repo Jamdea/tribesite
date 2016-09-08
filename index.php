@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+	<title>Trabal TIMS</title>
 	<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
 	<script src="https://js.arcgis.com/4.0/"></script>
 	<style>
@@ -15,7 +16,7 @@
 			width: 100%;
 		}
 		#optionsDiv {
-			background-color: black;
+			background-color: dimgrey;
       		color: white;
       		z-index: 23;
       		position: absolute;
@@ -42,17 +43,18 @@
       		"esri/symbols/SimpleFillSymbol",
       		"esri/Graphic",
       		"esri/geometry/Point",
+      		"esri/geometry/Geometry",
 			"dojo/domReady!"	
 			],
 			function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 				dom, on, GraphicsLayer, SimpleRenderer, SimpleMarkerSymbol, SimpleFillSymbol, 
-				Graphic, Point
+				Graphic, Point, Geometry
 				){
 
-				var resultsLyr = new FeatureLayer();
+				var resultsLyr = new GraphicsLayer();
 
 				var map = new Map({
-					basemap: "topo",
+					basemap: "dark-gray",
 					layers: [resultsLyr]
 				});
 
@@ -101,19 +103,20 @@
 					url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/tribal/FeatureServer/0"
 				});
 
-				//map.add(tribeLayer);
+				map.add(tribeLayer);
 				//map.add(switrsLayer);
 
 				// Create graphics layer and symbol to use for displaying the results of query
 				//var resultsLyr = new FeatureLayer();
 				
 				var qTask = new QueryTask({
-					url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/tribal/FeatureServer/0"
+					url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160518/FeatureServer/1"
 				});
-				var params = new Query ({
+				/*var params = new Query ({
 					returnGeometry: true,
 					outFields: ["*"]
-				});
+				});*/
+				var params = new Query;
 				var tribeName = dom.byId("tribename");
 
 			    var generateRenderer = function(type) {
@@ -136,33 +139,43 @@
 				function doQuery(){
 					//resultsLyr.removeAll();
 					map.resultsLyr = null;
-					params.where = "NAME LIKE '" + tribeName.value + "'";
+					query = "NAME LIKE '" + tribeName.value + "'";
+					tribeLayer.definitionExpression = query;
+					//dom.byId("printResults").innerHTML = tribeLayer.source;
+					var geometry = new Geometry();
+					tribeLayer.queryFeatures().then(function(featureSet){
+						geometry = featureSet.features.geometry;
+					});
+					params.geometry = geometry;
+					params.spatialRelationship = "intersects";
 					qTask.execute(params).then(getResults).otherwise(promiseRejected);
 					
 				};
 
-				/*function getResults(response){
+				function getResults(response){
+					dom.byId("printResults").innerHTML = "query start";
 
-					var tribeResults = arrayUtils.map(response.features, function(feature){
-						feature.symbol = new SimpleFillSymbol({
-							color: "#3b7ea1",
+					var switrsResults = arrayUtils.map(response.features, function(feature){
+						feature.symbol = new SimpleMarkerSymbol({
+							color: "red",
             				outline: {
               					color: "white",
-              					width: 3
+              					width: "0.5px"
             				}
 						});
 						return feature;
 					});
 					
-					//resultsLyr.addMany(tribeResults);
-					resultsLyr.addMany(response.features);
+					resultsLyr.add(response.features);
+					//resultsLyr.addMany(response.features);
 					
 					//map.add(resultsLyr);
-					//view.goTo(tribeResults);
-					dom.byId("printResults").innerHTML = tribeResults.length;
-				};*/
+					view.goTo(response.features);
+					//view.extent = tribeResults.fullExtent;
+					dom.byId("printResults").innerHTML = switrsResults.length;
+				};
 
-				function getResults(results){
+				/*function getResults(results){
 					var option = {
 						fields: results.fields,
                 		source: results.features,
@@ -176,7 +189,7 @@
 					view.goTo(results.features);
 					dom.byId("printResults").innerHTML = results;
 					//console.log(results.features);
-				}
+				}*/
 
 				function promiseRejected(err) {
 					console.error("Promise rejected: ", err.message);
