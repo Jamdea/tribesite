@@ -18,12 +18,19 @@ require([
   		"esri/core/watchUtils",
   		"dojo/query",
   		"esri/widgets/Home",
+  		"esri/widgets/BasemapToggle",
+  		"esri/geometry/geometryEngine",
+  		"dojo/mouse",
+
+  		//Bootstrap
+  		//"extra/Datepicker",
+
 		"dojo/domReady!"	
 		],
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, 
 			Graphic, Point, Geometry, SpatialReference, SimpleRenderer, SimpleFillSymbol,
-			watchUtils, dquery, Home
+			watchUtils, dquery, Home, BasemapToggle, geometryEngine, mouse
 			){
 
 			var resultsLyr = new GraphicsLayer();
@@ -37,17 +44,25 @@ require([
 				basemap: "gray"
 			});
 
+			var oriExtent = {
+				xmin: -13849947.1077,
+				ymin: 3833641.0796,
+				xmax: -12705116.39,
+				ymax: 5162385.525,
+				spatialReference: 102100
+			};
+
 			var view = new MapView({
 				container: "viewDiv",
 				map: map,
-				extent: {
-					xmin: -13849947.1077,
-					ymin: 3833641.0796,
-					xmax: -12705116.39,
-					ymax: 5162385.525,
-					spatialReference: 102100
-				}
+				extent: oriExtent
 			});
+
+			var toggle = new BasemapToggle({
+				view: view,
+				nextBasemap: "osm"
+			});
+			toggle.startup();
 
 			var homeBtn = new Home({
 				view: view
@@ -55,6 +70,7 @@ require([
 
 			homeBtn.startup();
 			view.ui.add(homeBtn, "top-left");
+			view.ui.add(toggle, "top-right");
 
 			var overview = new MapView({
 				container: "overviewDiv",
@@ -91,15 +107,30 @@ require([
 				symbol: new SimpleFillSymbol({
 					color: [255, 255, 255, 0.1],
 					outline: {
-  					width: 2,
-  					color: [51, 173, 255, 0.6]
+  						width: 2,
+  						color: [51, 173, 255, 0.6]
   					}
   				})
   			});
 
+  			var bufferSymbol = new SimpleFillSymbol({
+  				color: [255, 255, 255, 0.1],
+  				outline: {
+  					width: 2,
+  					color: [51, 173, 255, 0.2]
+  				}
+  			})
+
+  			var highlSymbol = new SimpleFillSymbol({
+  				color: [255, 255, 255, 0.2],
+  				outline: {
+  					width: 3,
+  					color: [151, 173, 255, 1]
+  				}
+  			})
 
 			var switrsLayer = new FeatureLayer({
-				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160518/FeatureServer/1"
+				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
 			});
 
 			var tribeLayer = new FeatureLayer({
@@ -111,7 +142,7 @@ require([
 			//map.add(switrsLayer);
 
 			var qTask = new QueryTask({
-				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160518/FeatureServer/1"
+				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
 			});
 
 			var params = new Query ({
@@ -120,29 +151,15 @@ require([
 				outSpatialReference: SpatialReference(102100)
 			});
 
-			// view.whenLayerView(tribeLayer).then(function(lyrView){
-			// 	lyrView.watch("updating", function(val){
-			// 		if(!val){
-			// 			var tribequery = new Query();
-			// 			tribequery.outFields = ["NAME", "OBJECTID"];
-			// 			tribequery.where = "NAME LIKE '%'";
-			// 			tribeLayer.queryFeatures(tribequery).then(function(featureSet){
-			// 				var features = featureSet.features;
-			// 				var text = "";
-			// 				arrayUtils.forEach(features, function(feature){
-			// 					var name = feature.attributes.NAME;
-			// 					if(name.length > 30){
-			// 						name = name.split("Tribe")[0];
-			// 					}
-			// 					text += "<option value='" + feature.attributes.OBJECTID + "'>" + name + "</option>";
-								
-			// 				});
-			// 				console.log(text);
-			// 				dquery("#tribename")[0].innerHTML = text;
-			// 			});
-			// 		}
-			// 	});
-			// });
+			// var filters = {
+			// 	"date":{
+			// 		"startDate": query("#startDate").val(),
+			// 		"endDate": query("#endDate").val()
+			// 	}
+			// };
+
+
+
 
 			tribeLayer.then(function(result){
 				return view.map.layers.getItemAt(0).load();
@@ -161,32 +178,88 @@ require([
 						text += "<option value='" + feature.attributes.OBJECTID + "'>" + name + "</option>";
 						
 					});
-					console.log(text);
+					//console.log(text);
 					dquery("#tribename")[0].innerHTML = text;
 				});
 			});
 
+			function dateToYMD(date){
+				var dateParts = date.split(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+			    return dateParts[3] + "-" + dateParts[1] + "-" + dateParts[2];				
+			}
+
 			var tribeName = dom.byId("tribename");
+			var buffer = dom.byId("buffer");
+			var highlGraphic = new Graphic();
+			// var startDate = dateToYMD(dom.byId("startDate").value);
+			// var endDate = dateToYMD(dom.byId("endDate").value);
+			//var lastSelect = "";
+
+			function gotoTribe(){
+				view.graphics.remove(highlGraphic);
+				var query = new Query({
+					returnGeometry: true,
+					outFields: ["*"],
+					outSpatialReference: SpatialReference(102100)
+				});
+				query.where = "OBJECTID ='" + tribeName.value + "'";
+				tribeLayer.queryFeatures(query).then(function(featureSet){
+					var zoomGeo = featureSet.features[0].geometry;
+					highlGraphic.geometry = zoomGeo;
+					highlGraphic.symbol = highlSymbol;
+					view.graphics.add(highlGraphic);
+					view.goTo(highlGraphic);
+				});
+				//lastSelect = tribeName;
+			};
+
 			function doQuery(){
+				view.graphics.remove(highlGraphic);
 				resultsLyr.removeAll();
-				query = "OBJECTID ='" + tribeName.value + "'";
-				tribeLayer.definitionExpression = query;
-				tribeLayer.queryFeatures().then(function(featureSet){
+				var query = new Query({
+					returnGeometry: true,
+					outFields: ["*"],
+					outSpatialReference: SpatialReference(102100)
+				});
+				query.where = "OBJECTID ='" + tribeName.value + "'";
+				tribeLayer.queryFeatures(query).then(function(featureSet){
+
+					tribeLayer.definitionExpression = query.where;
 					var geometry = featureSet.features[0].geometry;
-					params.geometry = geometry;
+					var zoomGraphic = featureSet.features;
+					
+					if(buffer.value == 1){
+						var bufferGeo = geometryEngine.buffer(geometry, 5, "miles");
+						var bufferGraphic = new Graphic({
+							geometry: bufferGeo,
+							symbol: bufferSymbol
+						});
+						params.geometry = bufferGeo;
+						view.graphics.add(bufferGraphic);
+						zoomGraphic = bufferGraphic;
+					} else {
+						params.geometry = geometry;
+					};
+					view.goTo(zoomGraphic);
 					params.spatialRelationship = "intersects";
+					var startDate = dateToYMD(dom.byId("startDate").value);
+					var endDate = dateToYMD(dom.byId("endDate").value);
+					params.where = "DATE_ >= '" + startDate + "' AND DATE_ <= '" + endDate + "'";
+					console.log(params.where);
 					qTask.execute(params).then(getResults).otherwise(promiseRejected);
+
 				});
 			};
 
 			function getResults(response){
+				console.log(response);
 				var switrsResults = arrayUtils.map(response.features, function(feature){
 					feature.symbol = new SimpleMarkerSymbol({
 						color: [255, 100, 0, 0.8],
 						size: 8,
 						outline: {
-							color: [255, 255, 255, 0.8],
-							width: 0.5
+							color: [255, 50, 0, 0.6],
+							width: 1.5
 						}
 					});
 					return feature;
@@ -197,7 +270,7 @@ require([
 				//console.log(response.spatialReference.wkid);
 				
 				//map.add(resultsLyr);
-				view.goTo(switrsResults);
+				//view.goTo(switrsResults);
 				//view.extent = tribeResults.fullExtent;
 				dom.byId("printResults").innerHTML = switrsResults.length + " results found";
 			};
@@ -206,6 +279,15 @@ require([
 				console.error("Promise rejected: ", err.message);
 			}
 
+			function resetView(){
+				resultsLyr.removeAll();
+				tribeLayer.definitionExpression = "OBJECTID LIKE '%'";
+				dom.byId("printResults").innerHTML = "";
+			}
+
+			on(dom.byId("tribename"), "change", gotoTribe);
+
 			on(dom.byId("doBtn"), "click", doQuery);
+			on(dom.byId("clearBtn"), "click", resetView);
 
 		});
