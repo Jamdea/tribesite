@@ -4,9 +4,6 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 	<title>Trabal TIMS</title>
-	<!-- Calcite Bootstrap -->
-	<!-- <link rel="stylesheet" href="//esri.github.io/calcite-bootstrap/assets/css/calcite-bootstrap-open.min.css"> -->
-	<!-- <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap/assets/datepicker.css"> -->
 	<!-- ArcGIS JavaScript api 4.0 -->
 	<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
 	<!-- <script src="https://js.arcgis.com/4.0/"></script> -->
@@ -18,12 +15,13 @@
 
 	<link rel="stylesheet" href="css/style.css">
 
+
 </head>
 <body>
 	<div id = "menuDiv">
 		<ul class = "topnav" id = "myTopnav">
 			<div class = "dropdown">
-				<li><button onclick="dropdownFun()" class="dropbtn" title="Start mapping traffic injuries">Map SWITRS</button></li>
+				<li><button onclick="dropdownFun()" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li>
 				<div id="optionsDiv" class = "dropdown-content">
 			    	<h2>California Tribes</h2>
 			    	Select tribe by name:
@@ -57,22 +55,141 @@
 			    	<button id="doBtn" class = "actionBtn">Do Query</button>
 			    	<button id="clearBtn" class = "actionBtn">Clear Search</button>
 			    	<br>
-			    	<p><span id="printResults"></span></p>
+			    	<!-- <p><span id="printResults"></span></p> -->
+			    	<br>
 			  	</div>
 			</div>
-			<li><a href = "#tools">Tools</a></li>
-			<li><a href = "#options">Options</a></li>
-			<li><a href = "#layers">Layers</a></li>
-			<li><a href = "#basemap">Basemap</a></li>
 			<li><a href = "#print">Print</a></li>
+			<li class = "dropdownHover">
+				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
+				<div class = "dropdnHover-content">
+					<p><span id="streets">Streets</span></p>
+<!-- 					<p><span id="streets-night-vector">Streets Night</span></p>
+					<p><span id="streets-navigation-vector">Streets Navigation</span></p> -->
+					<p><span id="satellite">Satellite</span></p>
+					<p><span id="hybrid">Hybrid</span></p>
+					<p><span id="topo">Topography</span></p>
+					<p><span id="gray">Light Gray Canvas</span></p>
+					<p><span id="dark-gray">Dark Gray Canvas</span></p>
+					<p><span id="oceans">Oceans</span></p>
+					<p><span id="national-geographic">National Geographic</span></p>
+					<p><span id="terrain">Terrain</span></p>
+					<p><span id="osm">Open Street Map</span></p>
+				</div>
+			</li>
+			<li><a href = "#layers">Layers</a></li>
+			<li><a href = "#options">Options</a></li>
+			<li><a href = "#tools">Tools</a></li>			
 			<li class = "icon">
 				<a href="javascript:void(0);" onclick="myFunction()">&#9776;</a>
 			</li>
+<!-- 			<li><a href = "">Basemap-test</a>
+			<select id = "basemapChg">
+	    		<option value = "streets">streets</option>
+	    		<option value = "satellite">Satellite</option>
+	    		<option value = "hybrid">hybrid</option>
+	    		<option value = "topo">topo</option>
+	    	</select>
+	    	<li> -->
 		</ul>
 	</div>
 	<div id="viewDiv"></div>
 	<div id="overviewDiv">
 		<div id="extentDiv"></div>
+	</div>
+	<div id="infoPanel">
+		<p><h4 id="printResults"></h4></p>
+	<table>
+	  <col width= "70%">
+	  <col width= "30%">
+	  <tr>
+	    <th colspan= 2>Tribal Summary</th>
+	  </tr>
+	  <tr>
+	    <td>County:</td>
+	    <td id = "tribeCounty"></td>
+	  </tr>
+	  <tr>
+	    <td>Population:</td>
+	    <td id = "tribePop"></td>
+	  </tr>
+	  <tr>
+	    <td>Area (in sq. miles):</td>
+	    <td id = "tribeArea"></td>
+	  </tr>
+	  <tr>
+	    <td>Road Miles:</td>
+	    <td id = "tribeRoad"></td>
+	  </tr>
+	  <tr>
+	    <td>Tribal Police:</td>
+	    <td id = "tribePolice"></td>
+	  </tr>
+	  <tr>
+	    <td>Tribal Fire:</td>
+	    <td id = tribeFire></td>
+	  </tr>
+	  <tr>
+	    <td>Tribal EMS:</td>
+	    <td id = tribeEms></td>
+	  </tr>
+	  <tr>
+	    <td>Casino:</td>
+	    <td id = tribeCasino></td>
+	  </tr>
+	  <tr>
+	    <td>Transportation Agency:</td>
+	    <td id = tribeTrans></td>
+	  </tr>
+	  <tr>
+	    <td>Roadway Infrastructure Collection:</td>
+	    <td id = tribeInfra></td>
+	  </tr>
+	</table>
+	<br>
+	<table>
+	  <col width= "70%">
+	  <col width= "30%">
+	  <tr>
+	    <th colspan= 2>Snapshot of Victims</th>
+	  </tr>
+	  <tr>
+	    <td>Total Victims:</td>
+	    <td id = "totalVictim"></td>
+	  </tr>
+	  <tr>
+	    <td>Fatalities:</td>
+	    <td id = "fatalities"></td>
+	  </tr>
+	  <tr>
+	    <td>Severe Injuries:</td>
+	    <td id = "severe"></td>
+	  </tr>
+	</table>
+	<br>
+	<table>
+	  <col width= "70%">
+	  <col width= "30%">
+	  <tr>
+	    <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
+	  </tr>
+	  <tr>
+	    <td>Pedestrain Victims:</td>
+	    <td id = "pedVictim"></td>
+	  </tr>
+	  <tr>
+	    <td>Bicycle Victims:</td>
+	    <td id = "bikeVictim"></td>
+	  </tr>
+	  <tr>
+	    <td>Pedestrain Victims:</td>
+	    <td id = "carVictim"></td>
+	  </tr>
+	  <tr>
+	    <td>Impaired Victims:</td>
+	    <td id = "impairedVictim"></td>
+	  </tr>
+	</table>		
 	</div>
   	<script>
 
