@@ -133,30 +133,44 @@ require([
   				id: "view-details"
   			};
 
-			var popContent="<table><tr><td style='font-size:13px;font-weight:bold;'>SWITRS</td><th style='font-size:13px;'>CASEID :{CASEID}</a></th></tr>";
+			var popContent="<table id = 'popupTable'><tr><td style='font-size:13px;font-weight:bold;' colspan = '2'>CASEID: {CASEID}</td></tr>";
 			popContent+= "<tr><td colspan='2'><hr width='100%'></td></tr>";
-			popContent+= "<tr><td style='background-color:#EEEEFF;padding: 2px 5px 2px 5px;'><b>Collision Details</b></td><td style='background-color:#EEEEFF;padding: 2px 5px 2px 5px;'><b>Collision Location</b></td></tr>";
-			popContent+= "<tr valign='top'><td width='120px' style='padding: 2px 5px 2px 5px;'>Date:{DATE_:formatDate}<br>";
-			popContent+= "Time:{TIME_:formatTime}<br>";
-			popContent+= "Killed:{KILLED}<br>";
-			popContent+= "Injured:{INJURED}<br>";
-			popContent+= "Crash severity:{CRASHSEV}<br>";
-			popContent+= "Pedestrian:{PEDCOL}<br>";
-			popContent+= "Bicycle:{BICCOL}<br>";
-			popContent+= "Motorcycle:{MCCOL}<br>";
-			popContent+= "Truck:{TRUCKCOL}<br></td>";
+			popContent+= "<tr><td style='background-color: white; padding: 2px 5px 2px 5px;'><b>Collision Details</b></td><td style='background-color:white;padding: 2px 5px 2px 5px;'><b>Collision Location</b></td></tr>";
+			popContent+= "<tr valign='top'><td width='120px' style='padding: 2px 5px 2px 5px;'>Date: {DATE_}<br>";
+			popContent+= "Time: {TIME_}<br>";
+			popContent+= "Killed: {KILLED}<br>";
+			popContent+= "Injured: {INJURED}<br>";
+			popContent+= "Crash severity: {CRASHSEV}<br>";
+			popContent+= "Alcohol Involved: {ETOH}<br>"
+			popContent+= "Pedestrian: {PEDCOL}<br>";
+			popContent+= "Bicycle: {BICCOL}<br>";
+			popContent+= "Motorcycle: {MCCOL}<br>";
+			popContent+= "Truck: {TRUCKCOL}<br></td>";
 			popContent+= "<td width='140px' style='padding: 2px 5px 2px 5px;'>Primary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{PRIMARYRD}<br>";
 			popContent+= "Secondary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{SECONDRD}<br>";
-			popContent+= "Intersection:{INTERSECT_}<br>";
-			popContent+= "Offset Distance:{DISTANCE}<br>";
-			popContent+= "Offset Direction:{DIRECT}<br></td></tr></style>";
+			popContent+= "Intersection: INTERSECT_}<br>";
+			popContent+= "Offset Distance: {DISTANCE}<br>";
+			popContent+= "Offset Direction: {DIRECT}<br></td></tr></style>";
 			popContent+= "</table>";
 
 			// var popContent = "<td style='font-size:13px;font-weight:bold;'>SWITRS</td>";
 
   			var poptemplate = {
 				content: popContent,
-				actions: [detailsAction]
+				actions: [detailsAction],
+				fieldInfos: [{
+					fieldName: "DATE_",
+					format: {
+						dateFormat: "short-date"
+					}
+				},
+				{
+					fieldName: "TIME_",
+					format: {
+						// dateFormat: "short-date-short-time"
+					}
+				}
+				]
 			};
 
 			view.popup.on("trigger-action", function(evt) {
@@ -235,6 +249,9 @@ require([
 			function gotoTribe(){
 				// view.graphics.remove(highlGraphic);
 				dom.byId("printResults").innerHTML = "";
+				dom.byId("fatalities").innerHTML = "";
+				dom.byId("severe").innerHTML = "";
+				dom.byId("totalVictim").innerHTML = "";
 				view.graphics.removeAll();
 				var query = new Query({
 					returnGeometry: true,
@@ -282,12 +299,15 @@ require([
 							symbol: bufferSymbol
 						});
 						params.geometry = bufferGeo;
-						view.graphics.add(bufferGraphic);
+						// view.graphics.add(bufferGraphic);
+						resultsLyr.add(bufferGraphic);
 						zoomGraphic = bufferGraphic;
 					} else {
 						params.geometry = geometry;
 					};
 					view.goTo(zoomGraphic);
+					// console.log(geometry);
+					// view.extent = geometry.extent.expand(2.8);
 					params.spatialRelationship = "intersects";
 					var startDate = dateToYMD(dom.byId("startDate").value);
 					var endDate = dateToYMD(dom.byId("endDate").value);
@@ -311,6 +331,8 @@ require([
 			};
 
 			function getResults(response){
+				var fatalVitm = 0;
+				var severeVitm = 0;
 				var switrsResults = arrayUtils.map(response.features, function(feature){
 					feature.symbol = new SimpleMarkerSymbol({
 						color: [255, 100, 0, 0.8],
@@ -321,18 +343,24 @@ require([
 						}
 					});
 					feature.popupTemplate = poptemplate;
+					fatalVitm += feature.attributes.KILLED;
+					severeVitm += feature.attributes.INJURED;
 					return feature;
 				});
-				// console.log(response.features[1]);
+				console.log(switrsResults[0]);
+				dom.byId("fatalities").innerHTML = fatalVitm;
+				dom.byId("severe").innerHTML = severeVitm;
+				dom.byId("totalVictim").innerHTML = severeVitm + fatalVitm;
+				// view.graphics.add(switrsResults);
 				resultsLyr.addMany(switrsResults);
-
 				// console.log(response.spatialReference.wkid);
 				
 				//map.add(resultsLyr);
 				//view.goTo(switrsResults);
 				//view.extent = tribeResults.fullExtent;
 				dom.byId("printResults").innerHTML += ": " + switrsResults.length + " collisions found";
-				dquery("#infoPanel").style("display", "block");
+				// dquery("#info").style("display", "block");
+				displayInfo();
 			};
 
 			function promiseRejected(err) {
@@ -344,7 +372,8 @@ require([
 				resultsLyr.removeAll();
 				tribeLayer.definitionExpression = "OBJECTID LIKE '%'";
 				dom.byId("printResults").innerHTML = "";
-				dquery("#infoPanel").style("display", "none");
+				// dquery("#info").style("display", "none");
+				hideInfo()
 			};
 
 			function changeBasemap(basemapid){
@@ -352,7 +381,44 @@ require([
 				console.log(basemapid);
 			};
 
+			var showinfo = false;
 
+			function displayInfo(){
+				dquery("#infoPanel").style("display", "block");
+				dquery("#infoPanel").style("width", "300px");
+				dquery("#infoPanel").style("background-color", "white");
+				dquery("#infoPanel").style("box-shadow", "0px 8px 16px 0px rgba(0,0,0,0.2)");
+				dquery("#info").style("display", "inline");
+				dquery("#infoIcon")[0].title = "Hide tribe info window";
+				showinfo = true;
+			};
+
+			function hideInfo(){
+				dquery("#info").style("display", "none");
+				// dquery("#infoIcon").style("title", "Display tribe info window");
+				dquery("#infoPanel").style("width", "");
+				dquery("#infoPanel").style("background-color", "");
+				dquery("#infoPanel").style("box-shadow", "none");
+				dquery("#infoIcon")[0].title = "Display tribe info window";
+				showinfo = false;
+			}
+
+			function formatDate(value){
+				if (isNaN(value)) {
+					var temp = value.split(" ");
+					var r = temp[0].match(/^\s*([0-9]+)\s*-\s*([0-9]+)\s*-\s*([0-9]+)(.*)$/);
+					return r[2]+"/"+r[3]+"/"+r[1]+r[4];
+				}
+				else {
+					var a = new Date(value);
+					return (a.getUTCMonth() + 1) + "/" + a.getUTCDate() + "/" + a.getUTCFullYear();
+				}
+			}
+			function formatTime(value){
+				value="000" + value;
+				value=value.substr(value.length - 4);
+				return value.substr(0, 2) + ":" + value.substr(2);
+			}
 			on(dom.byId("tribename"), "change", gotoTribe);
 
 			on(dom.byId("doBtn"), "click", doQuery);
@@ -363,37 +429,18 @@ require([
 			on(dom.byId("streets"), "click", function(){
 				map.basemap = dom.byId("streets").id
     		});
-			// on(dom.byId("streets-night-vector"), "click", function(){
-			// 	map.basemap = dom.byId("streets-night-vector").id
-   //  		});
-   //  		on(dom.byId("streets-navigation-vector"), "click", function(){
-			// 	map.basemap = dom.byId("streets-navigation-vector").id
-   //  		});
-			on(dom.byId("satellite"), "click", function(){
-				map.basemap = dom.byId("satellite").id
-    		});
-			on(dom.byId("hybrid"), "click", function(){
-				map.basemap = dom.byId("hybrid").id
-    		});
-			on(dom.byId("topo"), "click", function(){
-				map.basemap = dom.byId("topo").id
-    		});
-			on(dom.byId("gray"), "click", function(){
-				map.basemap = dom.byId("gray").id
-    		});
-			on(dom.byId("dark-gray"), "click", function(){
-				map.basemap = dom.byId("dark-gray").id
-    		});
-			on(dom.byId("oceans"), "click", function(){
-				map.basemap = dom.byId("oceans").id
-    		});
-			on(dom.byId("national-geographic"), "click", function(){
-				map.basemap = dom.byId("national-geographic").id
-    		});
-			on(dom.byId("terrain"), "click", function(){
-				map.basemap = dom.byId("terrain").id
-    		});
-			on(dom.byId("osm"), "click", function(){
-				map.basemap = dom.byId("osm").id
-    		});    		    		    		    		    		    		    		
+			dquery("#dropdnBasemap > div").on("click", function(e) {
+				var id = e.target.id;
+				map.basemap = id;
+			});
+    		on(dom.byId("infoIcon"), "click", function(){
+    			if(showinfo) {
+    				hideInfo();
+    			} else {
+    				var tribetext = dom.byId("printResults").innerHTML;
+    				if(tribetext.length > 0){
+    					displayInfo();
+    				};
+    			};
+    		});      		    		    		    		    		    		    		
 		});

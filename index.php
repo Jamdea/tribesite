@@ -18,7 +18,8 @@
 
 </head>
 <body>
-	<div id = "menuDiv">
+	<div class = "menubar" id = "menuDiv">
+        <!-- <div id = "title"><span>Tribal TIMS</span><div>  -->
 		<ul class = "topnav" id = "myTopnav">
 			<div class = "dropdown">
 				<li><button onclick="dropdownFun()" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li>
@@ -59,38 +60,30 @@
 			    	<br>
 			  	</div>
 			</div>
+            <li id = "title">Tribal TIMS</li>
 			<li><a href = "#print">Print</a></li>
 			<li class = "dropdownHover">
 				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
-				<div class = "dropdnHover-content">
-					<p><span id="streets">Streets</span></p>
-<!-- 					<p><span id="streets-night-vector">Streets Night</span></p>
-					<p><span id="streets-navigation-vector">Streets Navigation</span></p> -->
-					<p><span id="satellite">Satellite</span></p>
-					<p><span id="hybrid">Hybrid</span></p>
-					<p><span id="topo">Topography</span></p>
-					<p><span id="gray">Light Gray Canvas</span></p>
-					<p><span id="dark-gray">Dark Gray Canvas</span></p>
-					<p><span id="oceans">Oceans</span></p>
-					<p><span id="national-geographic">National Geographic</span></p>
-					<p><span id="terrain">Terrain</span></p>
-					<p><span id="osm">Open Street Map</span></p>
+				<div class = "dropdnHover-content" id = "dropdnBasemap">
+					<div id="streets">Streets</div>
+					<div id="satellite">Satellite</div>
+					<div id="hybrid">Hybrid</div>
+					<div id="topo">Topography</div>
+					<div id="gray">Light Gray Canvas</div>
+					<div id="dark-gray">Dark Gray Canvas</div>
+					<div id="oceans">Oceans</div>
+					<div id="national-geographic">National Geographic</div>
+					<div id="terrain">Terrain</div>
+					<div id="osm">Open Street Map</div>
 				</div>
 			</li>
 			<li><a href = "#layers">Layers</a></li>
 			<li><a href = "#options">Options</a></li>
-			<li><a href = "#tools">Tools</a></li>			
+			<li><a href = "#tools">Tools</a></li>
+
 			<li class = "icon">
 				<a href="javascript:void(0);" onclick="myFunction()">&#9776;</a>
 			</li>
-<!-- 			<li><a href = "">Basemap-test</a>
-			<select id = "basemapChg">
-	    		<option value = "streets">streets</option>
-	    		<option value = "satellite">Satellite</option>
-	    		<option value = "hybrid">hybrid</option>
-	    		<option value = "topo">topo</option>
-	    	</select>
-	    	<li> -->
 		</ul>
 	</div>
 	<div id="viewDiv"></div>
@@ -98,98 +91,101 @@
 		<div id="extentDiv"></div>
 	</div>
 	<div id="infoPanel">
+		<span aria-hidden="true" id = "infoIcon" title="Display tribe info window">i</span>
+        <div id = "info">
 		<p><h4 id="printResults"></h4></p>
-	<table>
-	  <col width= "70%">
-	  <col width= "30%">
-	  <tr>
-	    <th colspan= 2>Tribal Summary</th>
-	  </tr>
-	  <tr>
-	    <td>County:</td>
-	    <td id = "tribeCounty"></td>
-	  </tr>
-	  <tr>
-	    <td>Population:</td>
-	    <td id = "tribePop"></td>
-	  </tr>
-	  <tr>
-	    <td>Area (in sq. miles):</td>
-	    <td id = "tribeArea"></td>
-	  </tr>
-	  <tr>
-	    <td>Road Miles:</td>
-	    <td id = "tribeRoad"></td>
-	  </tr>
-	  <tr>
-	    <td>Tribal Police:</td>
-	    <td id = "tribePolice"></td>
-	  </tr>
-	  <tr>
-	    <td>Tribal Fire:</td>
-	    <td id = tribeFire></td>
-	  </tr>
-	  <tr>
-	    <td>Tribal EMS:</td>
-	    <td id = tribeEms></td>
-	  </tr>
-	  <tr>
-	    <td>Casino:</td>
-	    <td id = tribeCasino></td>
-	  </tr>
-	  <tr>
-	    <td>Transportation Agency:</td>
-	    <td id = tribeTrans></td>
-	  </tr>
-	  <tr>
-	    <td>Roadway Infrastructure Collection:</td>
-	    <td id = tribeInfra></td>
-	  </tr>
-	</table>
-	<br>
-	<table>
-	  <col width= "70%">
-	  <col width= "30%">
-	  <tr>
-	    <th colspan= 2>Snapshot of Victims</th>
-	  </tr>
-	  <tr>
-	    <td>Total Victims:</td>
-	    <td id = "totalVictim"></td>
-	  </tr>
-	  <tr>
-	    <td>Fatalities:</td>
-	    <td id = "fatalities"></td>
-	  </tr>
-	  <tr>
-	    <td>Severe Injuries:</td>
-	    <td id = "severe"></td>
-	  </tr>
-	</table>
-	<br>
-	<table>
-	  <col width= "70%">
-	  <col width= "30%">
-	  <tr>
-	    <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
-	  </tr>
-	  <tr>
-	    <td>Pedestrain Victims:</td>
-	    <td id = "pedVictim"></td>
-	  </tr>
-	  <tr>
-	    <td>Bicycle Victims:</td>
-	    <td id = "bikeVictim"></td>
-	  </tr>
-	  <tr>
-	    <td>Pedestrain Victims:</td>
-	    <td id = "carVictim"></td>
-	  </tr>
-	  <tr>
-	    <td>Impaired Victims:</td>
-	    <td id = "impairedVictim"></td>
-	  </tr>
-	</table>		
+		<table>
+		  <col width= "70%">
+		  <col width= "30%">
+		  <tr>
+		    <th colspan= 2>Tribal Summary</th>
+		  </tr>
+		  <tr>
+		    <td>County:</td>
+		    <td id = "tribeCounty"></td>
+		  </tr>
+		  <tr>
+		    <td>Population:</td>
+		    <td id = "tribePop"></td>
+		  </tr>
+		  <tr>
+		    <td>Area (in sq. miles):</td>
+		    <td id = "tribeArea"></td>
+		  </tr>
+		  <tr>
+		    <td>Road Miles:</td>
+		    <td id = "tribeRoad"></td>
+		  </tr>
+		  <tr>
+		    <td>Tribal Police:</td>
+		    <td id = "tribePolice"></td>
+		  </tr>
+		  <tr>
+		    <td>Tribal Fire:</td>
+		    <td id = tribeFire></td>
+		  </tr>
+		  <tr>
+		    <td>Tribal EMS:</td>
+		    <td id = tribeEms></td>
+		  </tr>
+		  <tr>
+		    <td>Casino:</td>
+		    <td id = tribeCasino></td>
+		  </tr>
+		  <tr>
+		    <td>Transportation Agency:</td>
+		    <td id = tribeTrans></td>
+		  </tr>
+		  <tr>
+		    <td>Roadway Infrastructure Collection:</td>
+		    <td id = tribeInfra></td>
+		  </tr>
+		</table>
+		<br>
+		<table>
+		  <col width= "70%">
+		  <col width= "30%">
+		  <tr>
+		    <th colspan= 2>Snapshot of Victims</th>
+		  </tr>
+		  <tr>
+		    <td>Total Victims:</td>
+		    <td id = "totalVictim"></td>
+		  </tr>
+		  <tr>
+		    <td>Fatalities:</td>
+		    <td id = "fatalities"></td>
+		  </tr>
+		  <tr>
+		    <td>Severe Injuries:</td>
+		    <td id = "severe"></td>
+		  </tr>
+		</table>
+		<br>
+		<table>
+		  <col width= "70%">
+		  <col width= "30%">
+		  <tr>
+		    <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
+		  </tr>
+		  <tr>
+		    <td>Pedestrain Victims:</td>
+		    <td id = "pedVictim"></td>
+		  </tr>
+		  <tr>
+		    <td>Bicycle Victims:</td>
+		    <td id = "bikeVictim"></td>
+		  </tr>
+		  <tr>
+		    <td>Pedestrain Victims:</td>
+		    <td id = "carVictim"></td>
+		  </tr>
+		  <tr>
+		    <td>Impaired Victims:</td>
+		    <td id = "impairedVictim"></td>
+		  </tr>
+		</table>
+        </div>		
 	</div>
   	<script>
 
