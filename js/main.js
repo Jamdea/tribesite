@@ -22,13 +22,17 @@ require([
   		"esri/geometry/geometryEngine",
   		"dojo/mouse",
   		"esri/PopupTemplate",
+  		"dojo/_base/fx",
+  		"dojo/dom-style",
+  		"dojo/dom-geometry",
+  		"dojo/fx",
 
 		"dojo/domReady!"	
 		],
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, 
 			Graphic, Point, Geometry, SpatialReference, SimpleRenderer, SimpleFillSymbol,
-			watchUtils, dquery, Home, geometryEngine, mouse, PopupTemplate
+			watchUtils, dquery, Home, geometryEngine, mouse, PopupTemplate, fx, style, domGeom, coreFx
 			){
 
 			var resultsLyr = new GraphicsLayer();
@@ -53,7 +57,11 @@ require([
 			var view = new MapView({
 				container: "viewDiv",
 				map: map,
-				extent: oriExtent
+				extent: oriExtent,
+				ui: {
+        			components: ["zoom"],
+        			padding: {top: 100}
+        		}
 			});
 
 			// var toggle = new BasemapToggle({
@@ -61,6 +69,14 @@ require([
 			// 	nextBasemap: "osm"
 			// });
 			// toggle.startup();
+			view.watch("updating", function(response){
+				if(response){
+			    	dquery(".loader").style("display", "flex");
+			  	}
+			  	else{
+			  		dquery(".loader").style("display", "none");
+			  }
+			});
 
 			var homeBtn = new Home({
 				view: view
@@ -101,12 +117,24 @@ require([
 				}
 			});
 
-			var polygonRenderer = new SimpleRenderer({
-				symbol: new SimpleFillSymbol({
+			var polygonSymbol = new SimpleFillSymbol({
 					color: [255, 255, 255, 0.1],
 					outline: {
   						width: 2,
   						color: [51, 173, 255, 0.6]
+  					}
+  				});
+
+			var polygonRenderer = new SimpleRenderer({
+				symbol: polygonSymbol
+  			});
+
+  			var polygonDeselect = new SimpleRenderer({
+				symbol: new SimpleFillSymbol({
+					color: [255, 255, 255, 0.1],
+					outline: {
+  						width: 2,
+  						color: [0, 0, 0, 0.2]
   					}
   				})
   			});
@@ -148,7 +176,7 @@ require([
 			popContent+= "Truck: {TRUCKCOL}<br></td>";
 			popContent+= "<td width='140px' style='padding: 2px 5px 2px 5px;'>Primary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{PRIMARYRD}<br>";
 			popContent+= "Secondary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{SECONDRD}<br>";
-			popContent+= "Intersection: INTERSECT_}<br>";
+			popContent+= "Intersection: {INTERSECT_}<br>";
 			popContent+= "Offset Distance: {DISTANCE}<br>";
 			popContent+= "Offset Direction: {DIRECT}<br></td></tr></style>";
 			popContent+= "</table>";
@@ -167,7 +195,6 @@ require([
 				{
 					fieldName: "TIME_",
 					format: {
-						// dateFormat: "short-date-short-time"
 					}
 				}
 				]
@@ -211,6 +238,7 @@ require([
 			// 	}
 			// };
 
+			// read all tribe names and parse to html
 			tribeLayer.then(function(result){
 				return view.map.layers.getItemAt(0).load();
 			}).then(function(){
@@ -245,7 +273,7 @@ require([
 			// var startDate = dateToYMD(dom.byId("startDate").value);
 			// var endDate = dateToYMD(dom.byId("endDate").value);
 			//var lastSelect = "";
-
+			var tribeSelected = false;
 			function gotoTribe(){
 				// view.graphics.remove(highlGraphic);
 				dom.byId("printResults").innerHTML = "";
@@ -265,7 +293,7 @@ require([
 					highlGraphic.symbol = highlSymbol;
 					view.graphics.add(highlGraphic);
 					view.goTo(highlGraphic);
-					console.log(featureSet.features[0]);
+					// console.log(featureSet.features[0]);
 					var area = featureSet.features[0].attributes.Area_sq_mi;
 					dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
 					dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
@@ -273,6 +301,8 @@ require([
 					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
 				});
 				//lastSelect = tribeName;
+				tribeSelected = true;
+				displayInfo();
 			};
 
 			function doQuery(){
@@ -287,10 +317,16 @@ require([
 				});
 				query.where = "OBJECTID ='" + tribeName.value + "'";
 				tribeLayer.queryFeatures(query).then(function(featureSet){
-
-					tribeLayer.definitionExpression = query.where;
+					// tribeLayer.definitionExpression = query.where;
+					// highlight selected freature
+					tribeLayer.renderer = polygonDeselect;
 					var geometry = featureSet.features[0].geometry;
 					var zoomGraphic = featureSet.features;
+					var tribeGraphic = new Graphic({
+						geometry: geometry,
+						symbol: polygonSymbol
+					})
+					resultsLyr.add(tribeGraphic);
 					
 					if(buffer.value != 0){
 						var bufferGeo = geometryEngine.buffer(geometry, buffer.value, "miles");
@@ -325,6 +361,7 @@ require([
 					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
 
 					// console.log(params.where);
+					tribeSelected = true;
 					qTask.execute(params).then(getResults).otherwise(promiseRejected);
 
 				});
@@ -347,7 +384,7 @@ require([
 					severeVitm += feature.attributes.INJURED;
 					return feature;
 				});
-				console.log(switrsResults[0]);
+				// console.log(switrsResults[0]);
 				dom.byId("fatalities").innerHTML = fatalVitm;
 				dom.byId("severe").innerHTML = severeVitm;
 				dom.byId("totalVictim").innerHTML = severeVitm + fatalVitm;
@@ -361,6 +398,7 @@ require([
 				dom.byId("printResults").innerHTML += ": " + switrsResults.length + " collisions found";
 				// dquery("#info").style("display", "block");
 				displayInfo();
+				dquery(".loader").style("display", "none");
 			};
 
 			function promiseRejected(err) {
@@ -384,23 +422,90 @@ require([
 			var showinfo = false;
 
 			function displayInfo(){
-				dquery("#infoPanel").style("display", "block");
+				// dquery("#infoPanel").style("display", "block");
+				style.set("infoPanel", "opacity", "0");
+				var fadeArgs = {
+					node: "infoPanel"
+				};
+				fx.fadeIn(fadeArgs).play();
 				dquery("#infoPanel").style("width", "300px");
 				dquery("#infoPanel").style("background-color", "white");
 				dquery("#infoPanel").style("box-shadow", "0px 8px 16px 0px rgba(0,0,0,0.2)");
 				dquery("#info").style("display", "inline");
 				dquery("#infoIcon")[0].title = "Hide tribe info window";
+				dquery("#infoIcon").style("width", "320px");
+				dquery("#infoIcon").style("border-radius", "0px");
+				showTribeInfo();
 				showinfo = true;
 			};
 
 			function hideInfo(){
-				dquery("#info").style("display", "none");
+				// dquery("#info").style("display", "none");
+				style.set("infoPanel", "opacity", "1");
+				var fadeArgs = {
+					node: "infoPanel",
+					duration: 200
+				};
+				fx.fadeOut(fadeArgs).play();
 				// dquery("#infoIcon").style("title", "Display tribe info window");
 				dquery("#infoPanel").style("width", "");
-				dquery("#infoPanel").style("background-color", "");
+				// dquery("#infoPanel").style("background-color", "");
 				dquery("#infoPanel").style("box-shadow", "none");
 				dquery("#infoIcon")[0].title = "Display tribe info window";
+				dquery("#infoIcon").style("width", "auto");
+				dquery("#infoIcon").style("border-radius", "5px");
 				showinfo = false;
+			}
+
+			var showinfoTribe = false;
+
+			function showTribeInfo(){
+				if(tribeSelected){
+					dquery("#tribeTable").style("display", "block");
+					dquery("#tribeTable").style("height", "auto");
+					style.set("tribeTable", "opacity", "0");
+					var fadeArgs = {
+						node: "tribeTable"
+					};
+					fx.fadeIn(fadeArgs).play();
+					// dquery("#tribeTable").style("display", "block");
+					// style.set("tribeTable", "display", "none");
+					// coreFx.wipeIn({
+					// 	node: "tribeTable"
+					// }).play();
+					// style.set("tribeTable", "display", "none");
+
+					dom.byId("noTribeText").innerHTML = "";
+					showinfoTribe = true;		
+				} else {
+					dom.byId("noTribeText").innerHTML = "No tribe selected";
+				}
+				
+			}
+
+			function hideTribeInfo(){
+				// style.set("tribeTable", "display", "none");
+				// var fadeArgs = {
+				// 	node: "tribeTable"
+				// };
+				// fx.fadeOut(fadeArgs).play();
+				
+				opacity = style.get(dom.byId("tribeTable"), 'opacity');
+				fx.animateProperty({
+					node: dom.byId("tribeTable"), duration: 500,
+					properties: {
+						opacity: opacity<1 ? 1 : 0,
+						height: opacity<1 ? 42 : 0
+					}
+				}).play();
+
+				// style.set("tribeTable", "display", "block");
+				// coreFx.wipeOut({
+				// 	node: "tribeTable"
+				// }).play();
+				// dquery("#tribeTable").style("display", "none");
+				dom.byId("noTribeText").innerHTML = "<br>";
+				showinfoTribe = false;
 			}
 
 			function formatDate(value){
@@ -419,9 +524,14 @@ require([
 				value=value.substr(value.length - 4);
 				return value.substr(0, 2) + ":" + value.substr(2);
 			}
-			on(dom.byId("tribename"), "change", gotoTribe);
+			on(dom.byId("tribename"), "change", function(){
+				gotoTribe();
+			});
 
-			on(dom.byId("doBtn"), "click", doQuery);
+			on(dom.byId("doBtn"), "click", function(){
+				dquery(".loader").style("display", "flex");
+				doQuery();
+			});
 			on(dom.byId("clearBtn"), "click", resetView);
 
 			var basemapArray = ["streets", "satellite", "hybrid", "topo"];
@@ -442,5 +552,13 @@ require([
     					displayInfo();
     				};
     			};
-    		});      		    		    		    		    		    		    		
+    		});
+    		on(dom.byId("tribeToggle"), "click", function(){
+    			if(showinfoTribe){
+    				hideTribeInfo();
+    			} else {
+    				showTribeInfo();
+    			}
+    		});
+
 		});

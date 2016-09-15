@@ -4,6 +4,11 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 	<title>Trabal TIMS</title>
+      <!-- Calcite Bootstrap -->
+  <!-- <link rel="stylesheet" href="//esri.github.io/calcite-bootstrap/assets/css/calcite-bootstrap-open.min.css"> -->
+<!--   <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap/assets/datepicker.css"> -->
+  <!-- Calcite Maps -->
+  <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.2.css">
 	<!-- ArcGIS JavaScript api 4.0 -->
 	<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
 	<!-- <script src="https://js.arcgis.com/4.0/"></script> -->
@@ -14,6 +19,8 @@
 	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 
 	<link rel="stylesheet" href="css/style.css">
+
+
 
 
 </head>
@@ -86,105 +93,122 @@
 			</li>
 		</ul>
 	</div>
-	<div id="viewDiv"></div>
+	<div id="viewDiv" class="calcite-map calcite-map-absolute">
+        <div class="loader" alt="Loading">
+            <!-- <div class="loader-bars"></div> -->
+            <div><img src="images/loading.gif"></div>
+            <div class="loader-text">Loading...</div>        
+    </div>
 	<div id="overviewDiv">
 		<div id="extentDiv"></div>
 	</div>
+    <div>
+        <button id = "infoIcon" class = "panelHeading" title="Display tribe info window">Detail Tribe Info</button>
+    </div>
 	<div id="infoPanel">
-		<span aria-hidden="true" id = "infoIcon" title="Display tribe info window">i</span>
+		<!-- <span aria-hidden="true" id = "infoIcon" title="Display tribe info window">i</span> -->
+
         <div id = "info">
-		<p><h4 id="printResults"></h4></p>
-		<table>
-		  <col width= "70%">
-		  <col width= "30%">
-		  <tr>
-		    <th colspan= 2>Tribal Summary</th>
-		  </tr>
-		  <tr>
-		    <td>County:</td>
-		    <td id = "tribeCounty"></td>
-		  </tr>
-		  <tr>
-		    <td>Population:</td>
-		    <td id = "tribePop"></td>
-		  </tr>
-		  <tr>
-		    <td>Area (in sq. miles):</td>
-		    <td id = "tribeArea"></td>
-		  </tr>
-		  <tr>
-		    <td>Road Miles:</td>
-		    <td id = "tribeRoad"></td>
-		  </tr>
-		  <tr>
-		    <td>Tribal Police:</td>
-		    <td id = "tribePolice"></td>
-		  </tr>
-		  <tr>
-		    <td>Tribal Fire:</td>
-		    <td id = tribeFire></td>
-		  </tr>
-		  <tr>
-		    <td>Tribal EMS:</td>
-		    <td id = tribeEms></td>
-		  </tr>
-		  <tr>
-		    <td>Casino:</td>
-		    <td id = tribeCasino></td>
-		  </tr>
-		  <tr>
-		    <td>Transportation Agency:</td>
-		    <td id = tribeTrans></td>
-		  </tr>
-		  <tr>
-		    <td>Roadway Infrastructure Collection:</td>
-		    <td id = tribeInfra></td>
-		  </tr>
-		</table>
-		<br>
-		<table>
-		  <col width= "70%">
-		  <col width= "30%">
-		  <tr>
-		    <th colspan= 2>Snapshot of Victims</th>
-		  </tr>
-		  <tr>
-		    <td>Total Victims:</td>
-		    <td id = "totalVictim"></td>
-		  </tr>
-		  <tr>
-		    <td>Fatalities:</td>
-		    <td id = "fatalities"></td>
-		  </tr>
-		  <tr>
-		    <td>Severe Injuries:</td>
-		    <td id = "severe"></td>
-		  </tr>
-		</table>
-		<br>
-		<table>
-		  <col width= "70%">
-		  <col width= "30%">
-		  <tr>
-		    <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
-		  </tr>
-		  <tr>
-		    <td>Pedestrain Victims:</td>
-		    <td id = "pedVictim"></td>
-		  </tr>
-		  <tr>
-		    <td>Bicycle Victims:</td>
-		    <td id = "bikeVictim"></td>
-		  </tr>
-		  <tr>
-		    <td>Pedestrain Victims:</td>
-		    <td id = "carVictim"></td>
-		  </tr>
-		  <tr>
-		    <td>Impaired Victims:</td>
-		    <td id = "impairedVictim"></td>
-		  </tr>
-		</table>
+            <h4 id="printResults">Please select tribe!</h4>
+            <button class = "panelHeading" id = "tribeToggle" title = "Display tribal summary info">Tribal Summary</button>
+            <span id = "noTribeText"></span>
+                <table id = "tribeTable">
+                  <col width= "70%">
+                  <col width= "30%">
+<!--                   <tr>
+                    <th colspan= 2>Tribal Summary</th>
+                  </tr> -->
+                  <tr>
+                    <td>County:</td>
+                    <td id = "tribeCounty"></td>
+                  </tr>
+                  <tr>
+                    <td>Population:</td>
+                    <td id = "tribePop"></td>
+                  </tr>
+                  <tr>
+                    <td>Area (in sq. miles):</td>
+                    <td id = "tribeArea"></td>
+                  </tr>
+                  <tr>
+                    <td>Road Miles:</td>
+                    <td id = "tribeRoad"></td>
+                  </tr>
+                  <tr>
+                    <td>Tribal Police:</td>
+                    <td id = "tribePolice"></td>
+                  </tr>
+                  <tr>
+                    <td>Tribal Fire:</td>
+                    <td id = tribeFire></td>
+                  </tr>
+                  <tr>
+                    <td>Tribal EMS:</td>
+                    <td id = tribeEms></td>
+                  </tr>
+                  <tr>
+                    <td>Casino:</td>
+                    <td id = tribeCasino></td>
+                  </tr>
+                  <tr>
+                    <td>Transportation Agency:</td>
+                    <td id = tribeTrans></td>
+                  </tr>
+                  <tr>
+                    <td>Roadway Infrastructure Collection:</td>
+                    <td id = tribeInfra></td>
+                  </tr>
+                </table>
+            <br>
+            <div id = "victimTable">
+                <button class = "panelHeading" id = "victimToggle" title="Display victim info">Snapshot of Victims</button>
+                <table>
+                  <col width= "70%">
+                  <col width= "30%">
+<!--                   <tr>
+                    <th colspan= 2>Snapshot of Victims</th>
+                  </tr> -->
+                  <tr>
+                    <td>Total Victims:</td>
+                    <td id = "totalVictim"></td>
+                  </tr>
+                  <tr>
+                    <td>Fatalities:</td>
+                    <td id = "fatalities"></td>
+                  </tr>
+                  <tr>
+                    <td>Severe Injuries:</td>
+                    <td id = "severe"></td>
+                  </tr>
+                </table>
+            </div>
+            <br>
+            <div id = "severeTable">
+                <button class = "panelHeading" id = "severeToggle" title = "Display fatal and severe injury info">Snapshot of Fatal and Severe Injuries</button>
+                <table>
+                  <col width= "70%">
+                  <col width= "30%">
+<!--                   <tr>
+                    <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
+                  </tr> -->
+                  <tr>
+                    <td>Pedestrain Victims:</td>
+                    <td id = "pedVictim"></td>
+                  </tr>
+                  <tr>
+                    <td>Bicycle Victims:</td>
+                    <td id = "bikeVictim"></td>
+                  </tr>
+                  <tr>
+                    <td>Pedestrain Victims:</td>
+                    <td id = "carVictim"></td>
+                  </tr>
+                  <tr>
+                    <td>Impaired Victims:</td>
+                    <td id = "impairedVictim"></td>
+                  </tr>
+                </table>
+            </div>
         </div>		
 	</div>
   	<script>
