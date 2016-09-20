@@ -29,18 +29,19 @@
         <!-- <div id = "title"><span>Tribal TIMS</span><div>  -->
 		<ul class = "topnav" id = "myTopnav">
 			<div class = "dropdown">
-				<li><button onclick="dropdownFun()" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li>
+<!-- 				<li><button onclick="dropdownFun()" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li> -->
+            <li><button id="mapSwitrs" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li>
 				<div id="optionsDiv" class = "dropdown-content">
 			    	<h2>California Tribes</h2>
-			    	Select tribe by name:
+			    	<span>Select tribe by name:</span>
 			    	<br>
 			    	<select id="tribename"></select>
-			    	<br>
-			    	Select date:
+                    <br>
+			    	<span>Select date:</span>
 			    	<br>
 					<input class="span2" size="16" type="text" value="01/01/2005" id="startDate"> - <input class="span2" size="16" type="text" value="12/31/2015" id="endDate">
 			    	<br>
-			    	Select buffer:
+			    	<span>Select buffer:</span>
 			    	<br>
 			    	<select id = "buffer">
 			    		<option value = 0>No Buffer</option>
@@ -51,51 +52,67 @@
 			    		<option value = 5>5-Mile Buffer</option>
 			    	</select>
 			    	<br>
-			    	Select injury level:
+			    	<span>Select injury level:</span>
 			    	<br>
 			    	<select id = "injury">
 			    		<option value = 0>All Injury Levels</option>
 			    		<option value = 1>Fatality Only</option>
 			    		<option value = 2>Fatality and Severe Injury</option>
 			    	</select>
-			    	<br>
-			    	<br>
-			    	<button id="doBtn" class = "actionBtn">Do Query</button>
+<!-- 			    	<br>
+                    <input type="checkbox" id="tribeBound" checked>Show tribe boundry
+                    <br>
+                    <input type="checkbox" id="bufferBond" checked>Show buffer boundry -->
+                    <br>
+                    <!-- <input type="checkbox" id="tribeBond" checked data-dojo-type="dijit/form/CheckBox"> -->
+                    <!-- <input type="checkbox" id="dbox1Bond" checked data-dojo-type="dijit/form/CheckBox"> -->
+                    <div id="boundryBox" class = "checkbox"> 
+                    </div>
+                    <label for="tribeBond">Show tribe boundry</label>
+                    <br>
+                    <div id="bufferBox" class = "checkbox">
+                    </div>
+                    <label for="bufferBond">Show buffer boundry</label>
+
+                    
+                    <br>
+                    <br>
+                    <button id="doBtn" class = "actionBtn">Do Query</button>
 			    	<button id="clearBtn" class = "actionBtn">Clear Search</button>
 			    	<br>
 			    	<!-- <p><span id="printResults"></span></p> -->
 			    	<br>
 			  	</div>
-			</div>
-            <li id = "title">Tribal TIMS</li>
-			<li><a href = "#print">Print</a></li>
-			<li class = "dropdownHover">
-				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
-				<div class = "dropdnHover-content" id = "dropdnBasemap">
-					<div id="streets">Streets</div>
-					<div id="satellite">Satellite</div>
-					<div id="hybrid">Hybrid</div>
-					<div id="topo">Topography</div>
-					<div id="gray">Light Gray Canvas</div>
-					<div id="dark-gray">Dark Gray Canvas</div>
-					<div id="oceans">Oceans</div>
-					<div id="national-geographic">National Geographic</div>
-					<div id="terrain">Terrain</div>
-					<div id="osm">Open Street Map</div>
-				</div>
-			</li>
+			<!-- </div>         -->
+			   
+            <li><a href = "#print">Print</a></li>
+    			<li class = "dropdownHover">
+    				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
+    				<div class = "dropdnHover-content" id = "dropdnBasemap">
+    					<div id="streets">Streets</div>
+    					<div id="satellite">Satellite</div>
+    					<div id="hybrid">Hybrid</div>
+    					<div id="topo">Topography</div>
+    					<div id="gray">Light Gray Canvas</div>
+    					<div id="dark-gray">Dark Gray Canvas</div>
+    					<div id="oceans">Oceans</div>
+    					<div id="national-geographic">National Geographic</div>
+    					<div id="terrain">Terrain</div>
+    					<div id="osm">Open Street Map</div>
+    				</div>
+    			</li>
 			<li><a href = "#layers">Layers</a></li>
 			<li><a href = "#options">Options</a></li>
 			<li><a href = "#tools">Tools</a></li>
+      <li id = "title">Tribal TIMS</li>
 
 			<li class = "icon">
 				<a href="javascript:void(0);" onclick="myFunction()">&#9776;</a>
 			</li>
 		</ul>
 	</div>
-	<div id="viewDiv" class="calcite-map calcite-map-absolute">
+	<div id="viewDiv">
         <div class="loader" alt="Loading">
-            <!-- <div class="loader-bars"></div> -->
             <div><img src="images/loading.gif"></div>
             <div class="loader-text">Loading...</div>        
     </div>
@@ -112,6 +129,7 @@
             <h4 id="printResults">Please select tribe!</h4>
             <button class = "panelHeading" id = "tribeToggle" title = "Display tribal summary info">Tribal Summary</button>
             <span id = "noTribeText"></span>
+            <br>
                 <table id = "tribeTable">
                   <col width= "70%">
                   <col width= "30%">
@@ -160,9 +178,10 @@
                   </tr>
                 </table>
             <br>
-            <div id = "victimTable">
                 <button class = "panelHeading" id = "victimToggle" title="Display victim info">Snapshot of Victims</button>
-                <table>
+                <span id = "noVictimText"></span>
+                <br>
+                <table id = "victimTable">
                   <col width= "70%">
                   <col width= "30%">
 <!--                   <tr>
@@ -181,11 +200,11 @@
                     <td id = "severe"></td>
                   </tr>
                 </table>
-            </div>
             <br>
-            <div id = "severeTable">
-                <button class = "panelHeading" id = "severeToggle" title = "Display fatal and severe injury info">Snapshot of Fatal and Severe Injuries</button>
-                <table>
+                <button class = "panelHeading" id = "injurToggle" title = "Display fatal and severe injury info">Snapshot of Fatal and Severe Injuries</button>
+                <span id = "noInjurText"></span>
+                <br>
+                <table id = "injurTable">
                   <col width= "70%">
                   <col width= "30%">
 <!--                   <tr>
@@ -200,7 +219,7 @@
                     <td id = "bikeVictim"></td>
                   </tr>
                   <tr>
-                    <td>Pedestrain Victims:</td>
+                    <td>Motocycle Victims:</td>
                     <td id = "carVictim"></td>
                   </tr>
                   <tr>
@@ -208,7 +227,6 @@
                     <td id = "impairedVictim"></td>
                   </tr>
                 </table>
-            </div>
         </div>		
 	</div>
   	<script>
@@ -228,9 +246,9 @@
 			});
 		});
 
-		function dropdownFun() {
-		    document.getElementById("optionsDiv").classList.toggle("show");
-		}
+		// function dropdownFun() {
+		//     document.getElementById("optionsDiv").classList.toggle("show");
+		// }
 
 		// Close the dropdown menu if the user clicks outside of it
 		// window.onclick = function(event) {
