@@ -33,15 +33,15 @@
             <li><button id="mapSwitrs" class="dropbtn" title="Click to start mapping traffic injuries">Map SWITRS</button></li>
 				<div id="optionsDiv" class = "dropdown-content">
 			    	<h2>California Tribes</h2>
-			    	<span>Select tribe by name:</span>
+			    	<span>Select Tribe by Name:</span>
 			    	<br>
 			    	<select id="tribename"></select>
                     <br>
-			    	<span>Select date:</span>
+			    	<span>Select Date:</span>
 			    	<br>
 					<input class="span2" size="16" type="text" value="01/01/2005" id="startDate"> - <input class="span2" size="16" type="text" value="12/31/2015" id="endDate">
 			    	<br>
-			    	<span>Select buffer:</span>
+			    	<span>Select Buffer:</span>
 			    	<br>
 			    	<select id = "buffer">
 			    		<option value = 0>No Buffer</option>
@@ -52,7 +52,7 @@
 			    		<option value = 5>5-Mile Buffer</option>
 			    	</select>
 			    	<br>
-			    	<span>Select injury level:</span>
+			    	<span>Select Injury Level:</span>
 			    	<br>
 			    	<select id = "injury">
 			    		<option value = 0>All Injury Levels</option>
@@ -68,11 +68,11 @@
                     <!-- <input type="checkbox" id="dbox1Bond" checked data-dojo-type="dijit/form/CheckBox"> -->
                     <div id="boundryBox" class = "checkbox"> 
                     </div>
-                    <label for="tribeBond">Show tribe boundry</label>
+                    <label for="tribeBond">Show Tribe Boundry</label>
                     <br>
                     <div id="bufferBox" class = "checkbox">
                     </div>
-                    <label for="bufferBond">Show buffer boundry</label>
+                    <label for="bufferBond">Show Buffer</label>
 
                     
                     <br>

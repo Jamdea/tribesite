@@ -57,10 +57,12 @@ require([
 			var doquery = false;
 
 			var resultsLyr = new GraphicsLayer();
+			var tribeLyr = new GraphicsLayer();
+			var buffferLyr = new GraphicsLayer();
 
 			var map = new Map({
 				basemap: "dark-gray",
-				layers: [resultsLyr]
+				layers: [tribeLyr, buffferLyr, resultsLyr]
 			});
 
 			var overviewMap = new Map({
@@ -84,6 +86,8 @@ require([
         			padding: {top: 100}
         		}
 			});
+
+			// view.popupManager.enabled = false;
 
 			var box1 = new CheckBox({
 				id: "tribeBond",
@@ -165,9 +169,9 @@ require([
 
   			var polygonDeselect = new SimpleRenderer({
 				symbol: new SimpleFillSymbol({
-					color: [255, 255, 255, 0.1],
+					color: [51, 173, 255, 0.2],
 					outline: {
-  						width: 2,
+  						width: 0,
   						color: [0, 0, 0, 0.2]
   					}
   				})
@@ -337,8 +341,6 @@ require([
 			    return dateParts[3] + "-" + dateParts[1] + "-" + dateParts[2];				
 			}
 
-
-
 			function gotoTribe(){
 				// view.graphics.remove(highlGraphic);
 				dom.byId("printResults").innerHTML = "";
@@ -379,6 +381,8 @@ require([
 
 				view.graphics.removeAll();
 				resultsLyr.removeAll();
+				tribeLyr.removeAll();
+				buffferLyr.removeAll();
 				var query = new Query({
 					returnGeometry: true,
 					outFields: ["*"],
@@ -399,9 +403,9 @@ require([
 						popupTemplate: tribePopupTem
 					});
 
-					if(!registry.byId("tribeBond").get("checked")){
-						tribeGraphic.symbol.outline.width = 0;
-					};
+					tribeGraphic.symbol.color = [0, 0, 0, 0];
+
+
 					
 					if(buffer.value != 0){
 						var bufferGeo = geometryEngine.buffer(geometry, buffer.value, "miles");
@@ -414,15 +418,23 @@ require([
 						});
 						params.geometry = bufferGeo;
 						// view.graphics.add(bufferGraphic);
+						buffferLyr.add(bufferGraphic);
 						if(!registry.byId("bufferBond").get("checked")){
-							bufferGraphic.symbol.outline.width = 0;
+							// bufferGraphic.symbol.outline.width = 0;
+							buffferLyr.visible = false;
 						};
-						resultsLyr.add(bufferGraphic);
+						// resultsLyr.add(bufferGraphic);
+						
 						zoomGraphic = bufferGraphic;
 					} else {
 						params.geometry = geometry;
 					};
-					resultsLyr.add(tribeGraphic);
+					// resultsLyr.add(tribeGraphic);
+					tribeLyr.add(tribeGraphic);
+					if(!registry.byId("tribeBond").get("checked")){
+						// tribeGraphic.symbol.outline.width = 0;
+						tribeLyr.visible = false;
+					};
 					view.goTo(zoomGraphic);
 					// console.log(geometry);
 					// view.extent = geometry.extent.expand(2.5);
@@ -497,6 +509,8 @@ require([
 			function resetView(){
 				view.graphics.removeAll();
 				resultsLyr.removeAll();
+				buffferLyr.removeAll();
+				tribeLyr.removeAll();
 				tribeLayer.definitionExpression = "OBJECTID LIKE '%'";
 				tribeLayer.renderer = polygonRenderer;
 				dom.byId("printResults").innerHTML = "Please select tribe!";
@@ -678,7 +692,7 @@ require([
 					}
 				}).play();
 				dom.byId("noVictimText").innerHTML = "";
-				dquery("#victimToggle")[0].title = "Display victim info!";
+				dquery("#victimToggle")[0].title = "Display victim info";
 				showinfoVitm = false;
 			}
 
@@ -814,24 +828,23 @@ require([
     			// 
     		})
 
-    		// console.log(dom.byId("tribeBond"));
+    		registry.byId("tribeBond").on("change", function(isChecked){
+    			if(doquery){
+	    			if(isChecked){	
+	    				tribeLyr.visible = true;
+	    			} else {
+	    				tribeLyr.visible = false;
+	    			}
+	    		}
+    		}, true);
 
-    		// registry.byId("tribeBond").on("change", function(isChecked){
-    		// 	if(doquery){
-	    	// 		if(isChecked){
-	    	// 			console.log(resultsLyr);
-	    	// 			// bufferGraphic.symbol.outline.width = 2;
-	    	// 		} else {
-	    	// 			// bufferGraphic.symbol.outline.width = 0;
-	    	// 		}
-	    	// 	}
-    		// }, true);
-
-    		// registry.byId("bufferBond").on("change", function(isChecked){
-    		// 	if(isChecked){
-    		// 		//show boundry
-    		// 	} else {
-    		// 		//hide boundry
-    		// 	}
-    		// }, true);
+    		registry.byId("bufferBond").on("change", function(isChecked){
+    			if(doquery){
+	    			if(isChecked){
+	    				buffferLyr.visible = true;
+	    			} else {
+	    				buffferLyr.visible = false;
+	    			}
+    			}
+    		}, true);
 		});
