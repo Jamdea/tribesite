@@ -27,6 +27,9 @@ require([
   		"dijit/registry",
   		"dijit/form/CheckBox",
   		"dojo/dom-style",
+  		"esri/geometry/Extent",
+  		"dojo/_base/lang",
+  		"esri/widgets/Popup/PopupRendererViewModel",
   		// "dojo/parser",
   		// "dojo/dom-geometry",
 
@@ -35,8 +38,56 @@ require([
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
-			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, domStyle
+			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
+			domStyle, Extent, lang, PopupRendererViewModel
 			){
+			  // Extend popup view model to pre process the attribuates for popuptemplate
+			// lang.extend(PopupRendererViewModel, {
+			// _formatValue: function(a, b, c, d, e) {
+			//   var dateFormat = {
+			//     "short-date": "(datePattern: 'M/d/y', selector: 'date')",
+			//     "short-date-le": "(datePattern: 'd/M/y', selector: 'date')",
+			//     "long-month-day-year": "(datePattern: 'MMMM d, y', selector: 'date')",
+			//     "day-short-month-year": "(datePattern: 'd MMM y', selector: 'date')",
+			//     "long-date": "(datePattern: 'EEEE, MMMM d, y', selector: 'date')",
+			//     "short-date-short-time": "(datePattern: 'M/d/y', timePattern: 'h:mm a', selector: 'date and time')",
+			//     "short-date-le-short-time": "(datePattern: 'd/M/y', timePattern: 'h:mm a', selector: 'date and time')",
+			//     "short-date-short-time-24": "(datePattern: 'M/d/y', timePattern: 'H:mm', selector: 'date and time')",
+			//     "short-date-le-short-time-24": "(datePattern: 'd/M/y', timePattern: 'H:mm', selector: 'date and time')",
+			//     "short-date-long-time": "(datePattern: 'M/d/y', timePattern: 'h:mm:ss a', selector: 'date and time')",
+			//     "short-date-le-long-time": "(datePattern: 'd/M/y', timePattern: 'h:mm:ss a', selector: 'date and time')",
+			//     "short-date-long-time-24": "(datePattern: 'M/d/y', timePattern: 'H:mm:ss', selector: 'date and time')",
+			//     "short-date-le-long-time-24": "(datePattern: 'd/M/y', timePattern: 'H:mm:ss', selector: 'date and time')",
+			//     "long-month-year": "(datePattern: 'MMMM y', selector: 'date')",
+			//     "short-month-year": "(datePattern: 'MMM y', selector: 'date')",
+			//     year: "(datePattern: 'y', selector: 'date')"
+			//   };
+			//   var f = a && this._getFieldInfo(a, c);
+			//   a = f && f.format;
+			//   c = "number" === typeof b && d.dateFormat.properties && -1 === d.dateFormat.properties.indexOf(c) && (!a || !a.dateFormat);
+			//   if (!esriLang.isDefined(b) || !f || !esriLang.isDefined(a))
+			//       return c ? this._forceLTR(b) : b;
+			//   var g = ""
+			//     , k = []
+			//     , f = a.hasOwnProperty("places") || a.hasOwnProperty("digitSeparator")
+			//     , h = a.hasOwnProperty("digitSeparator") ? a.digitSeparator : !0;
+			//   if (f)
+			//       g = "NumberFormat",
+			//       k.push("places: " + (esriLang.isDefined(a.places) && (!e || 0 < a.places) ? Number(a.places) : "Infinity")),
+			//       k.length && (g += "(" + k.join(",") + ")");
+			//   else if (a.dateFormat)
+			//       g = "DateFormat" + dateFormat[a.dateFormat] || dateFormat["short-date-short-time"];
+			//   else if (a.timeFormat)
+			//       return ("000" + b).substr(-4).replace(/(\d{2})(\d{2})/,"$1:$2");
+			//   else
+			//       return c ? this._forceLTR(b) : b;
+			//   b = esriLang.substitute({
+			//       myKey: b
+			//   }, "{myKey:" + g + "}", d) || "";
+			//   f && !h && number.group && (b = b.replace(RegExp("\\" + number.group, "g"), ""));
+			//   return c ? this._forceLTR(b) : b
+			// }
+			// });
 			// parser.parse();
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -62,8 +113,9 @@ require([
 
 			var map = new Map({
 				basemap: "dark-gray",
-				layers: [tribeLyr, buffferLyr, resultsLyr]
+				layers: [tribeLyr, buffferLyr]
 			});
+
 
 			var overviewMap = new Map({
 				basemap: "gray"
@@ -87,7 +139,7 @@ require([
         		}
 			});
 
-			// view.popupManager.enabled = false;
+			view.popupManager.enabled = false;
 
 			var box1 = new CheckBox({
 				id: "tribeBond",
@@ -204,8 +256,8 @@ require([
   				id: "view-tribe"
   			}
 
-			var popContent="<table id = 'popupTable'><tr><td style='font-size:13px;font-weight:bold;' colspan = '2'>CASEID: {CASEID}</td></tr>";
-			popContent+= "<tr><td colspan='2'><hr width='100%'></td></tr>";
+			var popContent="<table id = 'popupTable'>";
+			// popContent+= "<tr><td colspan='2'><hr width='100%'></td></tr>";
 			popContent+= "<tr><td style='background-color: white; padding: 2px 5px 2px 5px;'><b>Collision Details</b></td><td style='background-color:white;padding: 2px 5px 2px 5px;'><b>Collision Location</b></td></tr>";
 			popContent+= "<tr valign='top'><td width='120px' style='padding: 2px 5px 2px 5px;'>Date: {DATE_}<br>";
 			popContent+= "Time: {TIME_}<br>";
@@ -227,6 +279,7 @@ require([
 			// var popContent = "<td style='font-size:13px;font-weight:bold;'>SWITRS</td>";
 
   			var poptemplate = {
+  				title: "CASEID: {CASEID}",
 				content: popContent,
 				actions: [detailsAction],
 				fieldInfos: [{
@@ -238,7 +291,7 @@ require([
 				{
 					fieldName: "TIME_",
 					format: {
-						//format time
+						timeFormat: "HH:MM"
 					}
 				}
 				]
@@ -294,6 +347,7 @@ require([
 			});
 
 			map.add(tribeLayer);
+			map.add(resultsLyr);
 			//map.add(switrsLayer);
 
 			var qTask = new QueryTask({
@@ -760,10 +814,57 @@ require([
 			// 	console.log(evt.mapPoint);
 			// });
 
-			// view.on("click", function(evt){
-			//   // evt is the event handle returned after the event fires.
-			//   console.log(evt.mapPoint);
-			// });
+			view.on("click", function(e){
+				this.whenLayerView(tribeLayer).then(function(lyrView){
+					var point = e.mapPoint;
+					var query = new Query();
+					var searchPixel = 10;
+					var pixelWidth = view.extent.width / view.width;
+					var distance = searchPixel * pixelWidth;
+					query.geometry = new Extent({
+						xmin: point.x - distance,
+						ymin: point.y - distance,
+						xmax: point.x + distance,
+						ymax: point.y + distance,
+						spatialReference: view.spatialReference
+					});
+					query.spatialRelationship = "intersects";
+					query.spatialReference = view.spatialReference;
+					lyrView.queryFeatures(query).then(function(results){
+						if(results.length) {
+							view.popup.open({
+								features: results,
+								updateLocationEnabled: true
+							});
+						};
+					});
+				});
+				this.whenLayerView(resultsLyr).then(function(lyrView){
+					var point = e.mapPoint;
+					var query = new Query();
+					var searchPixel = 10;
+					var pixelWidth = view.extent.width / view.width;
+					var distance = searchPixel * pixelWidth;
+					query.geometry = new Extent({
+						xmin: point.x - distance,
+						ymin: point.y - distance,
+						xmax: point.x + distance,
+						ymax: point.y + distance,
+						spatialReference: view.spatialReference
+					});
+					query.spatialRelationship = "intersects";
+					query.spatialReference = view.spatialReference;
+					lyrView.queryFeatures(query).then(function(results){
+						if(results.length) {
+							view.popup.open({
+								features: results,
+								updateLocationEnabled: true
+							});
+						};
+					});
+				});
+
+			});
 
 			on(dom.byId("tribename"), "change", function(){
 				gotoTribe();
