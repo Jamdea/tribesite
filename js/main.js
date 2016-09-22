@@ -28,8 +28,6 @@ require([
   		"dijit/form/CheckBox",
   		"dojo/dom-style",
   		"esri/geometry/Extent",
-  		"dojo/_base/lang",
-  		"esri/widgets/Popup/PopupRendererViewModel",
   		// "dojo/parser",
   		// "dojo/dom-geometry",
 
@@ -39,55 +37,8 @@ require([
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent, lang, PopupRendererViewModel
+			domStyle, Extent
 			){
-			  // Extend popup view model to pre process the attribuates for popuptemplate
-			// lang.extend(PopupRendererViewModel, {
-			// _formatValue: function(a, b, c, d, e) {
-			//   var dateFormat = {
-			//     "short-date": "(datePattern: 'M/d/y', selector: 'date')",
-			//     "short-date-le": "(datePattern: 'd/M/y', selector: 'date')",
-			//     "long-month-day-year": "(datePattern: 'MMMM d, y', selector: 'date')",
-			//     "day-short-month-year": "(datePattern: 'd MMM y', selector: 'date')",
-			//     "long-date": "(datePattern: 'EEEE, MMMM d, y', selector: 'date')",
-			//     "short-date-short-time": "(datePattern: 'M/d/y', timePattern: 'h:mm a', selector: 'date and time')",
-			//     "short-date-le-short-time": "(datePattern: 'd/M/y', timePattern: 'h:mm a', selector: 'date and time')",
-			//     "short-date-short-time-24": "(datePattern: 'M/d/y', timePattern: 'H:mm', selector: 'date and time')",
-			//     "short-date-le-short-time-24": "(datePattern: 'd/M/y', timePattern: 'H:mm', selector: 'date and time')",
-			//     "short-date-long-time": "(datePattern: 'M/d/y', timePattern: 'h:mm:ss a', selector: 'date and time')",
-			//     "short-date-le-long-time": "(datePattern: 'd/M/y', timePattern: 'h:mm:ss a', selector: 'date and time')",
-			//     "short-date-long-time-24": "(datePattern: 'M/d/y', timePattern: 'H:mm:ss', selector: 'date and time')",
-			//     "short-date-le-long-time-24": "(datePattern: 'd/M/y', timePattern: 'H:mm:ss', selector: 'date and time')",
-			//     "long-month-year": "(datePattern: 'MMMM y', selector: 'date')",
-			//     "short-month-year": "(datePattern: 'MMM y', selector: 'date')",
-			//     year: "(datePattern: 'y', selector: 'date')"
-			//   };
-			//   var f = a && this._getFieldInfo(a, c);
-			//   a = f && f.format;
-			//   c = "number" === typeof b && d.dateFormat.properties && -1 === d.dateFormat.properties.indexOf(c) && (!a || !a.dateFormat);
-			//   if (!esriLang.isDefined(b) || !f || !esriLang.isDefined(a))
-			//       return c ? this._forceLTR(b) : b;
-			//   var g = ""
-			//     , k = []
-			//     , f = a.hasOwnProperty("places") || a.hasOwnProperty("digitSeparator")
-			//     , h = a.hasOwnProperty("digitSeparator") ? a.digitSeparator : !0;
-			//   if (f)
-			//       g = "NumberFormat",
-			//       k.push("places: " + (esriLang.isDefined(a.places) && (!e || 0 < a.places) ? Number(a.places) : "Infinity")),
-			//       k.length && (g += "(" + k.join(",") + ")");
-			//   else if (a.dateFormat)
-			//       g = "DateFormat" + dateFormat[a.dateFormat] || dateFormat["short-date-short-time"];
-			//   else if (a.timeFormat)
-			//       return ("000" + b).substr(-4).replace(/(\d{2})(\d{2})/,"$1:$2");
-			//   else
-			//       return c ? this._forceLTR(b) : b;
-			//   b = esriLang.substitute({
-			//       myKey: b
-			//   }, "{myKey:" + g + "}", d) || "";
-			//   f && !h && number.group && (b = b.replace(RegExp("\\" + number.group, "g"), ""));
-			//   return c ? this._forceLTR(b) : b
-			// }
-			// });
 			// parser.parse();
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -326,11 +277,20 @@ require([
         			tribeSelected = true;
         			doquery = false;
         			displayInfo();
-        			area = feature.attributes.Area_sq_mi;
+        			var area = feature.attributes.Area_sq_mi;
+        			var road = feature.attributes.Road_mileage_total;
 					dom.byId("printResults").innerHTML = feature.attributes.NAME;
+					dom.byId("tribePop").innerHTML = feature.attributes.Population;
 					dom.byId("tribeCounty").innerHTML = feature.attributes.COUNTY;
 					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = feature.attributes.AGENCY;
+					dom.byId("tribeTrans").innerHTML = feature.attributes.Trans_Agency;
+					dom.byId("tribeRoad").innerHTML = parseFloat(raod).toFixed(2);
+					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police;
+					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court;
+					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department;
+					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS;
+					dom.byId("tribeCasino").innerHTML = feature.attributes.Casino;
+					dom.byId("tribeInfra").innerHTML = feature.attributes.Casino.Roadway_Data;
 
         		}
       		});
@@ -340,7 +300,7 @@ require([
 			});
 
 			var tribeLayer = new FeatureLayer({
-				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/tribal/FeatureServer/0",
+				url: "http://services2.arcgis.com/iq8zYa0SRsvIFFKz/arcgis/rest/services/Tribal_upload/FeatureServer/0",
 				renderer: polygonRenderer,
 				outFields: ["*"],
 				popupTemplate: tribePopupTem
@@ -372,7 +332,7 @@ require([
 				return view.map.layers.getItemAt(0).load();
 			}).then(function(){
 				var tribequery = new Query();
-				tribequery.outFields = ["NAME", "OBJECTID"];
+				tribequery.outFields = ["NAME", "OBJECTID_12"];
 				tribequery.where = "NAME LIKE '%'";
 				tribeLayer.queryFeatures(tribequery).then(function(featureSet){
 					var features = featureSet.features;
@@ -382,7 +342,7 @@ require([
 						if(name.length > 30){
 							name = name.split("Tribe")[0];
 						}
-						text += "<option value='" + feature.attributes.OBJECTID + "'>" + name + "</option>";
+						text += "<option value='" + feature.attributes.OBJECTID_12 + "'>" + name + "</option>";
 						
 					});
 					//console.log(text);
@@ -407,7 +367,7 @@ require([
 					outFields: ["*"],
 					outSpatialReference: SpatialReference(102100)
 				});
-				query.where = "OBJECTID ='" + tribeName.value + "'";
+				query.where = "OBJECTID_12 ='" + tribeName.value + "'";
 				tribeLayer.queryFeatures(query).then(function(featureSet){
 					var zoomGeo = featureSet.features[0].geometry;
 					highlGraphic.geometry = zoomGeo;
@@ -417,10 +377,23 @@ require([
 					view.goTo(highlGraphic);
 					// console.log(featureSet.features[0]);
 					var area = featureSet.features[0].attributes.Area_sq_mi;
+					var road = featureSet.features[0].attributes.Road_mileage_total;
+					// dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					// dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
+					// dom.byId("tribeArea").innerHTML = area.toFixed(2);
+					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
 					dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
 					dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
 					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
+					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
+					dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
+					dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
+					dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
+					dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
+					dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
+					dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
+					dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
 				});
 				//lastSelect = tribeName;
 				tribeSelected = true;
@@ -442,12 +415,12 @@ require([
 					outFields: ["*"],
 					outSpatialReference: SpatialReference(102100)
 				});
-				query.where = "OBJECTID ='" + tribeName.value + "'";
+				query.where = "OBJECTID_12 ='" + tribeName.value + "'";
 				tribeLayer.queryFeatures(query).then(function(featureSet){
 					// tribeLayer.definitionExpression = query.where;
 					// highlight selected freature
 					tribeLayer.renderer = polygonDeselect;
-					featureSet.features[0].popupTemplate = null;
+					// featureSet.features[0].popupTemplate = null;
 					var geometry = featureSet.features[0].geometry;
 					var zoomGraphic = featureSet.features;
 					var tribeGraphic = new Graphic({
@@ -503,10 +476,30 @@ require([
 						params.where += "AND (INJURED = 3 OR INJURED = 4)";
 					};
 					var area = featureSet.features[0].attributes.Area_sq_mi;
-					dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					var road = featureSet.features[0].attributes.Road_mileage_total;
+					var website = featureSet.features[0].attributes.website; 
+					var police = featureSet.features[0].attributes.Tribal_Police_Website;  
+					// dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					// dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
+					// dom.byId("tribeArea").innerHTML = area.toFixed(2);
+					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
+					if (website){
+						dom.byId("printResults").innerHTML = "<a href = '" + website + "' target='_blank'>" + featureSet.features[0].attributes.NAME + "</a>";
+					} else {
+						dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					}
+					dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
 					dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
 					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
+					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
+					dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
+					dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
+					dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
+					dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
+					dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
+					dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
+					dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
+					console.log(featureSet.features[0]);
 
 					// console.log(params.where);
 					tribeSelected = true;
@@ -565,7 +558,7 @@ require([
 				resultsLyr.removeAll();
 				buffferLyr.removeAll();
 				tribeLyr.removeAll();
-				tribeLayer.definitionExpression = "OBJECTID LIKE '%'";
+				tribeLayer.definitionExpression = "OBJECTID_12 LIKE '%'";
 				tribeLayer.renderer = polygonRenderer;
 				dom.byId("printResults").innerHTML = "Please select tribe!";
 				// dquery("#info").style("display", "none");

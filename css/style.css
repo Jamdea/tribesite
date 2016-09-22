@@ -13,6 +13,22 @@ html, body {
 	width: 100%;
 }
 
+a:link {
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+
+a:hover {
+    color: grey;
+}
+
+a:active {
+    color: grey;
+}
+
 #optionsDiv {
 	background-color: #4CAF50;
 	color: white;

@@ -157,11 +157,15 @@
                     <td id = "tribePolice"></td>
                   </tr>
                   <tr>
-                    <td>Tribal Fire:</td>
+                    <td>Tribal Court:</td>
+                    <td id = "tribeCourt"></td>
+                  </tr>
+                  <tr>
+                    <td>Tribal Fire Department:</td>
                     <td id = tribeFire></td>
                   </tr>
                   <tr>
-                    <td>Tribal EMS:</td>
+                    <td>Tribal Emergency Medical Services:</td>
                     <td id = tribeEms></td>
                   </tr>
                   <tr>
@@ -169,7 +173,7 @@
                     <td id = tribeCasino></td>
                   </tr>
                   <tr>
-                    <td>Transportation Agency:</td>
+                    <td>Has Transportation Agency:</td>
                     <td id = tribeTrans></td>
                   </tr>
                   <tr>
