@@ -439,6 +439,10 @@ tr:nth-child(even) {
     margin-top: 2px;
 }
 
+#popup p {
+    margin-top: 2px; 
+    line-height: 50%;
+}
 /*#block {
     float: left;
 }*/

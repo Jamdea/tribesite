@@ -250,9 +250,19 @@ require([
 
 			var tribePopupTem = {
 				title: "{TRIBE}",
-				content: "<p><b>County: </b>{COUNTY}</p>" + 
-					"<p><b>Area (in sq. miles): </b>{Area_sq_mi}</p>" + 
-					"<p><b>Transportation Agency: </b>{AGENCY}</p>",
+				// title: "<a href = '{website}' target = '_blank'>{TRIBE}</a>",
+				content: "<div id='popup'>" +
+					"<p><b>County: </b>{COUNTY}</p>" + 
+					"<p><b>Population: </b>{Population}</p>" +
+					"<p><b>Area (in sq. miles): </b>{Area_sq_mi}</p>" +  
+					"<p><b>Road Miles: </b>{Road_mileage_total}</p>" + 
+					"<p><b>Tribal Police: </b>{Tribal_Police}</p>" + 
+					"<p><b>Tribal Court: </b>{Tribal_Court}</p>" +
+					"<p><b>Tribal Fire Department: </b>{Tribal_Fire_Department}</p>" +
+					"<p><b>Tribal Emergency Medical Services: </b>{Tribal_EMS}</p>" +
+					"<p><b>Casino: </b>{Casino}</p>" +
+					"<p><b>Has Transportation Agency: </b>{Trans_Agency}</p>" +
+					"<p><b>Roadway Infrastructure Collection:: </b>{Roadway_Data}</p></div>",
 				// actions: [openTribeInfo],
 				fieldInfos: [{
 					fieldName: "Area_sq_mi",
@@ -277,21 +287,7 @@ require([
         			tribeSelected = true;
         			doquery = false;
         			displayInfo();
-        			var area = feature.attributes.Area_sq_mi;
-        			var road = feature.attributes.Road_mileage_total;
-					dom.byId("printResults").innerHTML = feature.attributes.NAME;
-					dom.byId("tribePop").innerHTML = feature.attributes.Population;
-					dom.byId("tribeCounty").innerHTML = feature.attributes.COUNTY;
-					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = feature.attributes.Trans_Agency;
-					dom.byId("tribeRoad").innerHTML = parseFloat(raod).toFixed(2);
-					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police;
-					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court;
-					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department;
-					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS;
-					dom.byId("tribeCasino").innerHTML = feature.attributes.Casino;
-					dom.byId("tribeInfra").innerHTML = feature.attributes.Casino.Roadway_Data;
-
+        			showInfoText(feature);
         		}
       		});
 
@@ -375,25 +371,26 @@ require([
 					// highlGraphic.symbol = highlSymbol;
 					view.graphics.add(highlGraphic);
 					view.goTo(highlGraphic);
-					// console.log(featureSet.features[0]);
-					var area = featureSet.features[0].attributes.Area_sq_mi;
-					var road = featureSet.features[0].attributes.Road_mileage_total;
+
+					showInfoText(featureSet.features[0]);
+					// var area = featureSet.features[0].attributes.Area_sq_mi;
+					// var road = featureSet.features[0].attributes.Road_mileage_total;
+					// // dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					// // dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
+					// // dom.byId("tribeArea").innerHTML = area.toFixed(2);
+					// // dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
 					// dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
+					// dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
 					// dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
 					// dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
-					dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
-					dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
-					dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
-					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
-					dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
-					dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
-					dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
-					dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
-					dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
-					dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
-					dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
+					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
+					// dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
+					// dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
+					// dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
+					// dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
+					// dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
+					// dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
+					// dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
 				});
 				//lastSelect = tribeName;
 				tribeSelected = true;
@@ -475,33 +472,8 @@ require([
 					} else if(injury.value == 2) {
 						params.where += "AND (INJURED = 3 OR INJURED = 4)";
 					};
-					var area = featureSet.features[0].attributes.Area_sq_mi;
-					var road = featureSet.features[0].attributes.Road_mileage_total;
-					var website = featureSet.features[0].attributes.website; 
-					var police = featureSet.features[0].attributes.Tribal_Police_Website;  
-					// dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
-					// dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
-					// dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
-					if (website){
-						dom.byId("printResults").innerHTML = "<a href = '" + website + "' target='_blank'>" + featureSet.features[0].attributes.NAME + "</a>";
-					} else {
-						dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
-					}
-					dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
-					dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
-					dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
-					dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
-					dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
-					dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
-					dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
-					dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
-					dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
-					dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
-					console.log(featureSet.features[0]);
 
-					// console.log(params.where);
+					showInfoText(featureSet.features[0]);
 					tribeSelected = true;
 					qTask.execute(params).then(getResults).otherwise(promiseRejected);
 
@@ -858,6 +830,53 @@ require([
 				});
 
 			});
+
+			function showInfoText(feature){
+				var area = feature.attributes.Area_sq_mi;
+				var road = feature.attributes.Road_mileage_total;
+				var website = feature.attributes.website; 
+				var police = feature.attributes.Tribal_Police_Website;
+				var court = feature.attributes.Tribal_Court_Website;
+				var fire = feature.attributes.Fire_Department_Website;
+				var ems = feature.attributes.EMS_Website;
+				if(website) {
+					dom.byId("printResults").innerHTML = "<a href = '" + website + "' target='_blank'>" 
+					+ feature.attributes.NAME + "</a>";
+				} else {
+					dom.byId("printResults").innerHTML = feature.attributes.NAME;
+				};
+				dom.byId("tribePop").innerHTML = feature.attributes.Population;
+				dom.byId("tribeCounty").innerHTML = feature.attributes.COUNTY;
+				dom.byId("tribeArea").innerHTML = area.toFixed(2);
+				dom.byId("tribeTrans").innerHTML = feature.attributes.Trans_Agency;
+				dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
+				if(police) {
+					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police + 
+					" (<a href = '" + police + "' target='_blank'>Website</a>)";
+				} else {
+					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police;
+				};
+				if(court) {
+					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court + 
+					" (<a href = '" + court + "' target='_blank'>Website</a>)";						
+				} else {
+					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court;
+				};
+				if(fire) {
+					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department + 
+					" (<a href = '" + fire + "' target='_blank'>Website</a>)";								
+				} else {
+					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department;
+				};
+				if(ems) {
+					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS + 
+					" (<a href = '" + ems + "' target='_blank'>Website</a>)";						
+				} else {
+					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS;
+				};
+				dom.byId("tribeCasino").innerHTML = feature.attributes.Casino;
+				dom.byId("tribeInfra").innerHTML = feature.attributes.Roadway_Data;
+			}
 
 			on(dom.byId("tribename"), "change", function(){
 				gotoTribe();
