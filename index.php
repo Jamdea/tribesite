@@ -8,15 +8,17 @@
   <!-- <link rel="stylesheet" href="//esri.github.io/calcite-bootstrap/assets/css/calcite-bootstrap-open.min.css"> -->
 <!--   <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap/assets/datepicker.css"> -->
   <!-- Calcite Maps -->
-  <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.2.css">
+  <!-- <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/css/calcite-maps-arcgis-4.x.min-v0.2.css"> -->
 	<!-- ArcGIS JavaScript api 4.0 -->
-	<link rel="stylesheet" href="https://js.arcgis.com/4.0/esri/css/main.css">
+	<link rel="stylesheet" href="https://js.arcgis.com/4.1/esri/css/main.css">
 	<!-- <script src="https://js.arcgis.com/4.0/"></script> -->
 
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 	<!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+
+  <script src="http://code.highcharts.com/highcharts.js"></script>
 
 	<link rel="stylesheet" href="css/style.css">
 
@@ -85,7 +87,7 @@
 			  	</div>
 			<!-- </div>         -->
 			   
-            <li><a href = "#print">Print</a></li>
+            <li id = "printMap"><a href = "#">Print</a></li>
     			<li class = "dropdownHover">
     				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
     				<div class = "dropdnHover-content" id = "dropdnBasemap">
@@ -103,7 +105,12 @@
     			</li>
 			<li><a href = "#layers">Layers</a></li>
 			<li><a href = "#options">Options</a></li>
-			<li><a href = "#tools">Tools</a></li>
+			<li class = "dropdownHover">
+        <a href = "#tools" class = "dropbtnHover">Tools</a>
+        <div class = "dropdnHover-content">
+          <div title = "Create injurt reports" onclick = "reporting.show();">Reporting</div>
+        </div>
+      </li>
       <li id = "title">Tribal TIMS</li>
 
 			<li class = "icon">
@@ -279,7 +286,7 @@
 		}
 
   	</script>
-	<script src="//js.arcgis.com/4.0/"></script>
+	<script src="https://js.arcgis.com/4.1/"></script>
 	<script src="js/main.js"></script>
 
 </body>

@@ -28,7 +28,10 @@ require([
   		"dijit/form/CheckBox",
   		"dojo/dom-style",
   		"esri/geometry/Extent",
-  		// "dojo/parser",
+  		"esri/tasks/PrintTask",
+  		"esri/tasks/support/PrintTemplate",
+  		"esri/tasks/support/PrintParameters",
+  		"dijit/Dialog",
   		// "dojo/dom-geometry",
 
 		"dojo/domReady!"	
@@ -37,9 +40,8 @@ require([
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent
+			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog
 			){
-			// parser.parse();
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
 			var injury = dom.byId("injury");
@@ -211,7 +213,7 @@ require([
 			// popContent+= "<tr><td colspan='2'><hr width='100%'></td></tr>";
 			popContent+= "<tr><td style='background-color: white; padding: 2px 5px 2px 5px;'><b>Collision Details</b></td><td style='background-color:white;padding: 2px 5px 2px 5px;'><b>Collision Location</b></td></tr>";
 			popContent+= "<tr valign='top'><td width='120px' style='padding: 2px 5px 2px 5px;'>Date: {DATE_}<br>";
-			popContent+= "Time: {TIME_}<br>";
+			popContent+= "Time: {TIME_: formatTime}<br>";
 			popContent+= "Killed: {KILLED}<br>";
 			popContent+= "Injured: {INJURED}<br>";
 			popContent+= "Crash severity: {CRASHSEV}<br>";
@@ -237,12 +239,6 @@ require([
 					fieldName: "DATE_",
 					format: {
 						dateFormat: "short-date"
-					}
-				},
-				{
-					fieldName: "TIME_",
-					format: {
-						timeFormat: "HH:MM"
 					}
 				}
 				]
@@ -767,11 +763,14 @@ require([
 					var a = new Date(value);
 					return (a.getUTCMonth() + 1) + "/" + a.getUTCDate() + "/" + a.getUTCFullYear();
 				}
-			}
-			function formatTime(value){
-				value="000" + value;
-				value=value.substr(value.length - 4);
-				return value.substr(0, 2) + ":" + value.substr(2);
+			};
+
+			function formatTime(value, key, data){
+				var time = data.TIME_;
+				time = "000" + time;
+				time = time.substr(time.length - 4);
+				// return time.substr(0, 2) + ":" + time.substr(2);
+				return "time";
 			};
 
 			// tribeLayer.on("mouse-over", function(evt){
@@ -876,7 +875,13 @@ require([
 				};
 				dom.byId("tribeCasino").innerHTML = feature.attributes.Casino;
 				dom.byId("tribeInfra").innerHTML = feature.attributes.Roadway_Data;
-			}
+			};
+
+			reporting = new Dialog({
+				title: "Injury Report",
+				content: "<p>Injury report</p> <div id='chart'></div>",
+				// style: "width: 300px"
+			})
 
 			on(dom.byId("tribename"), "change", function(){
 				gotoTribe();
@@ -939,6 +944,30 @@ require([
     				dquery("#optionsDiv").style("display", "block");
     			}
     			// 
+    		});
+
+    		on(dom.byId("printMap"), "click", function(){
+    			var printTask = new PrintTask({
+    				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				});
+				var template = new PrintTemplate({
+						format: "pdf",
+					 	exportOptions: { 
+					   		dpi: 300 
+					 	},
+					 	layout: "a4-portrait",
+					 	layoutOptions: {
+					   		titleText: "Warren Wilson College Trees", 
+					   	authorText: "Sam"
+					 	}
+					});
+					  
+				var params = new PrintParameters({
+					view: view,
+					template: template
+					});
+					    
+					printTask.execute(params);
     		})
 
     		registry.byId("tribeBond").on("change", function(isChecked){
@@ -960,4 +989,21 @@ require([
 	    			}
     			}
     		}, true);
+
+			var chart = new Highcharts.Chart({
+			    chart: {
+			        renderTo: 'chart'
+			    },
+
+			    xAxis: {
+			        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+			            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			    },
+
+			    series: [{
+			        data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+			    }]
+
+			});
+
 		});
