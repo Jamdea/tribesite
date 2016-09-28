@@ -18,7 +18,9 @@
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 
-  <script src="http://code.highcharts.com/highcharts.js"></script>
+  <!-- <script src="http://code.highcharts.com/highcharts.js"></script> -->
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
 	<link rel="stylesheet" href="css/style.css">
 
@@ -79,7 +81,7 @@
                     
                     <br>
                     <br>
-                    <button id="doBtn" class = "actionBtn">Do Query</button>
+                    <button id="doBtn" class = "actionBtn">Submit</button>
 			    	<button id="clearBtn" class = "actionBtn">Clear Search</button>
 			    	<br>
 			    	<!-- <p><span id="printResults"></span></p> -->
@@ -106,9 +108,11 @@
 			<li><a href = "#layers">Layers</a></li>
 			<li><a href = "#options">Options</a></li>
 			<li class = "dropdownHover">
-        <a href = "#tools" class = "dropbtnHover">Tools</a>
+        <a href = "#tools" class = "dropbtnHover">Reporting</a>
         <div class = "dropdnHover-content">
-          <div title = "Create injurt reports" onclick = "reporting.show();">Reporting</div>
+          <!-- <div title = "Create injurt reports" onclick = "reporting.show();" id = "report">Reporting</div> -->
+          <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
+          <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
         </div>
       </li>
       <li id = "title">Tribal TIMS</li>

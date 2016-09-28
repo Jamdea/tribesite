@@ -418,11 +418,11 @@ tr:nth-child(even) {
 
 /* Loader */
 .loader {
-  position: absolute;
-  top: 49%;
-  left: 49%;
-  z-index: 1000;
-  display: none; 
+    position: absolute;
+    top: 49%;
+    left: 49%;
+    z-index: 1000;
+    display: none; 
 }
 
 .loader-text {
@@ -452,15 +452,18 @@ tr:nth-child(even) {
     /*height: 300px;*/
     background-color: white;
     padding: 10px;
+    color: #666666;
+    font-family: verdana;
 }
 
 .dijitDialogTitleBar {
-    background-color: #abd6ff;
-    color: white;
+    background-color: #f2f2f2;
+    color: #666666;
     /*float: right;*/
     cursor: move;
     padding: 10px 10px 10px 10px;
-    /*border: 5px solid #ffffff;*/
+    border: 2px solid #cccccc;
+    font-weight: bold;
     border-top: none;
     display: block;
 }
@@ -471,8 +474,18 @@ tr:nth-child(even) {
     padding: 0px 5px 0px 5px;
 }
 
-/*.dijitDialog {
-    position: absolute;
-    left: 450px;
-    top: 10px;
-}*/
+.chartTitle {
+    font-size: 14px;
+    font-family: verdana;
+    font-weight: bold;
+}
+
+.chart {
+    height: 200px;
+}
+
+#crashVari {
+    position: relative;
+    left: 5px;
+/*    top: 5px;*/
+}

@@ -64,6 +64,8 @@ require([
 			var tribeLyr = new GraphicsLayer();
 			var buffferLyr = new GraphicsLayer();
 
+			var reportTribe = '';
+
 			var map = new Map({
 				basemap: "dark-gray",
 				layers: [tribeLyr, buffferLyr]
@@ -424,8 +426,6 @@ require([
 					});
 
 					tribeGraphic.symbol.color = [0, 0, 0, 0];
-
-
 					
 					if(buffer.value != 0){
 						var bufferGeo = geometryEngine.buffer(geometry, buffer.value, "miles");
@@ -470,13 +470,20 @@ require([
 					};
 
 					showInfoText(featureSet.features[0]);
+					reportTribe = featureSet.features[0].attributes.NAME;
 					tribeSelected = true;
 					qTask.execute(params).then(getResults).otherwise(promiseRejected);
 
 				});
 			};
 
+			var datePoints = [];
+			var crashType = [];
+			var pcfType = [];
 			function getResults(response){
+				datePoints = [];
+				crashType = [];
+				pcfType = [];
 				var fatalVitm = 0;
 				var severeVitm = 0;
 				var switrsResults = arrayUtils.map(response.features, function(feature){
@@ -491,9 +498,13 @@ require([
 					feature.popupTemplate = poptemplate;
 					fatalVitm += feature.attributes.KILLED;
 					severeVitm += feature.attributes.INJURED;
+
+					datePoints.push(feature.attributes.DATE_);
+					crashType.push(feature.attributes.CRASHTYP);
+					pcfType.push(feature.attributes.VIOLCAT);
 					return feature;
 				});
-				// console.log(switrsResults[0]);
+				// console.log(datePoints);
 				dom.byId("fatalities").innerHTML = fatalVitm;
 				dom.byId("severe").innerHTML = severeVitm;
 				dom.byId("totalVictim").innerHTML = severeVitm + fatalVitm;
@@ -513,6 +524,7 @@ require([
 				doquery = true;
 				heightVitm = 0;
 				displayInfo();
+
 				// showVitmInfo();		
 				dquery(".loader").style("display", "none");
 			};
@@ -877,11 +889,84 @@ require([
 				dom.byId("tribeInfra").innerHTML = feature.attributes.Roadway_Data;
 			};
 
-			reporting = new Dialog({
-				title: "Injury Report",
-				content: "<p>Injury report</p> <div id='chart'></div>",
-				// style: "width: 300px"
-			})
+			function groupDate(array){
+				var yearGroup = {2004: 0, 2005: 0, 2006: 0, 2007: 0, 2008: 0, 2009: 0, 
+					2010: 0, 2011: 0, 2012: 0, 2013: 0, 2014: 0, 2015: 0};
+				var monthGroup = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 
+					8: 0, 9: 0, 10: 0, 11: 0};
+				var yearArray = [];
+				var monthArray = [];
+				for (i=0; i<array.length; i++) {
+					var d = new Date(array[i]);
+					var year = d.getFullYear();
+					var month = d.getMonth();
+					yearGroup[year] += 1;
+					monthGroup[month] += 1;
+				};
+				console.log(monthGroup);			
+				for(key in yearGroup) {
+					if (key != 2004){
+						yearArray.push(yearGroup[key]);
+					}
+				};
+				for(key in monthGroup) {
+					monthArray.push(monthGroup[key]);
+				};
+				return [yearArray, monthGroup];
+			};
+
+			function groupCrash(array){
+				var crashGroup = {};
+				var crashArray = [];
+				var typeDict = {'A':'Head-On', 'B':'Sideswipe', 'C':'Rear End', 'D':'Broadside',
+					'E':'Hit Object', 'F':'Overturned', 'G':'Vehicle/Pedestrian', 'H':'Other'};
+				var catCrash = [];
+				var sumCrash = [];
+				for(i=0; i<array.length; i++) {
+					type = array[i];
+					if (crashGroup[type]) {
+						crashGroup[type] += 1;
+					} else {
+						crashGroup[type] = 1;
+					};
+				};
+				for(var key in crashGroup) {
+					crashArray.push([key, crashGroup[key]]);
+				};
+				crashArray.sort(function(a, b){
+					return b[1] - a[1];
+				});
+				for(var i=0; i<crashArray.length; i++) {
+					catCrash.push(typeDict[crashArray[i][0]]);
+					sumCrash.push(crashArray[i][1]);
+				};
+				return [catCrash, sumCrash];
+
+			}
+
+			function sortDate(array){
+				array.sort(function(a, b){
+					c = new Date(a[0]);
+					d = new Date(b[0]);
+					return c-d;
+				})
+			}; 
+
+			var reportingInjury = new Dialog({
+				title: "Injury Trend Report",
+				content: "<p id='injuryTitle' class = 'chartTitle'>Please apply query first!</p> <hr> <div id='yearChart' class = 'chart'></div> <div id = 'monthChart' class = 'chart'>",
+				style: "width: 650px"
+			});
+
+			var reportingCrash = new Dialog({
+				title: "Crash Variable Report",
+				content: "<p id='crashTitle' class = 'chartTitle'>Please apply query first!</p> <hr>" + 
+				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
+				"<option value = 0>Collision Variable</option><option value = 1>Party Variable</option>" + 
+				"<option value = 2>Victim Variable</option><option value = 3>CA Variable</option></select>" +
+				"</div><div id = 'crashChart'></div>",
+				style: "width: 650px"
+			});
 
 			on(dom.byId("tribename"), "change", function(){
 				gotoTribe();
@@ -899,10 +984,12 @@ require([
 			on(dom.byId("streets"), "click", function(){
 				map.basemap = dom.byId("streets").id
     		});
+
 			dquery("#dropdnBasemap > div").on("click", function(e) {
 				var id = e.target.id;
 				map.basemap = id;
 			});
+
     		on(dom.byId("infoIcon"), "click", function(){
     			if(showinfo) {
     				hideInfo();
@@ -968,7 +1055,68 @@ require([
 					});
 					    
 					printTask.execute(params);
-    		})
+    		});
+
+    		on(dom.byId("injuryReport"), "click", function(){
+    			if (doquery){
+	    			var d = groupDate(datePoints);
+	    			var start = dom.byId("startDate").value;
+	    			var end = dom.byId("endDate").value;
+	    			var buffer = dom.byId('buffer').value;
+	    			var injurLevel = dom.byId('injury').value;
+	    			var average = [];
+	    			// for(i=0; i<d.length; i++) {
+	    			// 	average.push(d[i]/2);
+	    			// }
+	    			yearChart.series[0].update({
+	    				data: d[0]
+	    			});
+	    			monthChart.series[0].update({
+	    				data: d[1]
+	    			});
+
+	    			dom.byId('injuryTitle').innerHTML = reportTribe;
+
+	    			if (injurLevel == 1) {
+	    				yearChart.setTitle({text: "Yearly Injury Trend - Fatality Only"});
+	    				monthChart.setTitle({text: "Monthly Injury Trend - Fatality Only"});
+	    			} else if (injurLevel == 2) {
+	    				yearChart.setTitle({text: "Yearly Injury Trend - Fatality and Severe Injury"});
+	    				monthChart.setTitle({text: "Monthly Injury Trend - Fatality and Severe Injury"});
+	    			};
+
+	    			if (buffer != 0) {
+	    				dom.byId('injuryTitle').innerHTML += " (" + buffer + "-Mile Buffer): " + start + " - " + end;
+	    			} else {
+	    				dom.byId('injuryTitle').innerHTML += ": " + start + " - " + end;
+	    			};
+	    		};
+    			reportingInjury.show();
+    		});
+
+    		on(dom.byId("crashReport"), "click", function(){
+    			if(doquery) {
+	    			var start = dom.byId("startDate").value;
+	    			var end = dom.byId("endDate").value;
+	    			var buffer = dom.byId('buffer').value;
+	    			var d = groupCrash(crashType);
+	    			crashChart.series[0].update({
+	    				data: d[1]
+	    			});
+	    			crashChart.xAxis[0].setCategories(d[0]);
+	    			if (buffer != 0) {
+	    				dom.byId('crashTitle').innerHTML = reportTribe + " (" + buffer + "-Mile Buffer): " + start + " - " + end;
+	    			} else {
+	    				dom.byId('crashTitle').innerHTML = reportTribe + ": " + start + " - " + end;
+	    			};    				
+    			}
+    			reportingCrash.show();
+    		});
+
+    		on(dom.byId("variable"), "change", function(){
+    			var variable = dom.byId("variable").value;
+    			console.log(variable);
+    		});
 
     		registry.byId("tribeBond").on("change", function(isChecked){
     			if(doquery){
@@ -990,20 +1138,115 @@ require([
     			}
     		}, true);
 
-			var chart = new Highcharts.Chart({
+			var yearChart = new Highcharts.Chart({
 			    chart: {
-			        renderTo: 'chart'
+			        renderTo: "yearChart",
+			        // zoomType: 'x'
+			        // type: 'column'
 			    },
-
+			    title: {
+			    	text: "Yearly Injury Trend"
+			    },
 			    xAxis: {
-			        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-			            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			        categories: ['2005', '2006', '2007', '2008', '2009', '2010', 
+			            '2011', '2012', '2013', '2014', '2015']
 			    },
-
+			    yAxis: {
+			    	title: {text: "Sum of Collisions"}
+			    },
+			    legend: {
+            		enabled: false
+        		},
+			    credits:{enabled:false},
 			    series: [{
-			        data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-			    }]
+			    	type: "column",
+			        name: "Collisions",
+			        dataLabels: {
+		                enabled: true,
+		                color: '#666666',
+		                align: 'center',
+		                y: 5,
+		                style: {
+		                    fontSize: '10px',
+		                    fontFamily: 'Verdana, sans-serif'
+		                }
+            		}
+			    }
+
+			    // , {
+			    // 	type: 'spline',
+			    // 	name: 'Average',
+			    // 	marker: {
+		     //            lineWidth: 2,
+		     //            lineColor: Highcharts.getOptions().colors[1],
+		     //            fillColor: 'white'
+       //      		}
+			    // }
+			    ]
 
 			});
+			var monthChart = new Highcharts.Chart({
+			    chart: {
+			        renderTo: 'monthChart',
+			    },
+			    title: {
+			    	text: 'Monthly Injury Trend'
+			    },
+			    xAxis: {
+		            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+		                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			        // type: 'datetime'
+			    },
+			    yAxis: {
+		    		title: {text: "Sum of Collisions"}
+		    	},
+		    	legend: {
+		    		enabled: false
+		    	},
+			    credits:{enabled:false},
+			    series: [{
+			    	type: 'column',
+			        name: "Collisions",
+			        dataLabels: {
+		                enabled: true,
+		                color: '#666666',
+		                align: 'center',
+		                y: 5,
+		                style: {
+		                    fontSize: '10px',
+		                    fontFamily: 'Verdana, sans-serif'
+		                }
+            		}
+			    }]
+			});
 
+			var crashChart = new Highcharts.Chart({
+			    chart: {
+			        renderTo: 'crashChart',
+			    },
+			    title: {
+			    	text: 'Collision Type'
+			    },
+			    yAxis: {
+		    		title: {text: "Sum of Collisions"}
+		    	},
+		    	legend: {
+		    		enabled: false
+		    	},
+		    	credits: {enabled: false},
+			    series: [{
+			    	type: 'column',
+			        name: "Collisions",
+			        dataLabels: {
+		                enabled: true,
+		                color: '#666666',
+		                align: 'center',
+		                y: 5,
+		                style: {
+		                    fontSize: '10px',
+		                    fontFamily: 'Verdana, sans-serif'
+		                }
+            		}
+			    }]
+			});
 		});
