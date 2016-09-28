@@ -32,6 +32,7 @@ require([
   		"esri/tasks/support/PrintTemplate",
   		"esri/tasks/support/PrintParameters",
   		"dijit/Dialog",
+  		"esri/widgets/Legend",
   		// "dojo/dom-geometry",
 
 		"dojo/domReady!"	
@@ -40,7 +41,7 @@ require([
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog
+			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend
 			){
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -94,7 +95,7 @@ require([
         		}
 			});
 
-			view.popupManager.enabled = false;
+			view.popupManager.enabled = false;		
 
 			var box1 = new CheckBox({
 				id: "tribeBond",
@@ -106,8 +107,14 @@ require([
 				checked: true
 			});
 
+			var box3 = new CheckBox({
+				id: "tribe",
+				checked: true
+			});
+
 			box1.placeAt("boundryBox", "first");
 			box2.placeAt("bufferBox", "first");
+			box3.placeAt("tribeLayer", "first");
 
 			// var toggle = new BasemapToggle({
 			// 	view: view,
@@ -303,6 +310,25 @@ require([
 			map.add(tribeLayer);
 			map.add(resultsLyr);
 			//map.add(switrsLayer);
+			var legend = new Legend({
+			  	view: view,
+			  	layerInfos: [
+			  	{
+			  		layer: resultsLyr,
+			  		title: "Collision"
+			  	},
+			  	{
+			    	layer: tribeLayer,
+			    	title: "Tribe Area"
+			  	},
+			  	{
+			  		layer: buffferLyr,
+			  		title: "Buffer"
+			  	}
+			  	]
+			});
+
+			view.ui.add(legend, "bottom-right");
 
 			var qTask = new QueryTask({
 				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
@@ -915,13 +941,49 @@ require([
 				return [yearArray, monthGroup];
 			};
 
-			function groupCrash(array){
+			function groupCrash(array, type){
 				var crashGroup = {};
 				var crashArray = [];
-				var typeDict = {'A':'Head-On', 'B':'Sideswipe', 'C':'Rear End', 'D':'Broadside',
-					'E':'Hit Object', 'F':'Overturned', 'G':'Vehicle/Pedestrian', 'H':'Other'};
+				var typeDict = {};
 				var catCrash = [];
 				var sumCrash = [];
+
+				if (type == 0){
+					//crash type
+					typeDict = {'A':'Head-On', 'B':'Sideswipe', 'C':'Rear End', 'D':'Broadside',
+					'E':'Hit Object', 'F':'Overturned', 'G':'Vehicle/Pedestrian', 'H':'Other', '-': 'Not Stated'};
+				} else if (type == 1) {
+					//PCF type
+					typeDict = {
+						'01': 'Driving or Bicycling Under the Influence of Alcohol or Drug',
+						'02': 'Impeding Traffic',
+						'03': 'Unsafe Speed',
+						'04': 'Following Too Closely',
+						'05': 'Wrong Side of Road',
+						'06': 'Improper Passing',
+						'07': 'Unsafe Lane Change',
+						'08': 'Improper Turning',
+						'09': 'Automobile Right of Way',
+						'10': 'Pedestrian Right of Way',
+						'11': 'Pedestrian Violation',
+						'12': 'Traffic Signals and Signs',
+						'13': 'Hazardous Parking',
+						'14': 'Lights',
+						'15': 'Brakes',
+						'16': 'Other Equipment',
+						'17': 'Other Hazardous Violation',
+						'18': 'Other Than Driver (or Pedestrian)',
+						'19': '',
+						'20': '',
+						'21': 'Unsafe Starting or Backing',
+						'22': 'Other Improper Driving',
+						'23': 'Pedestrian or "Other" Under the Influence of Alcohol or Drug',
+						'24': 'Fell Asleep',
+						'00': 'Unknown',
+						'-': 'Not Stated'
+					}
+				};
+
 				for(i=0; i<array.length; i++) {
 					type = array[i];
 					if (crashGroup[type]) {
@@ -936,21 +998,14 @@ require([
 				crashArray.sort(function(a, b){
 					return b[1] - a[1];
 				});
+				console.log(typeDict);
 				for(var i=0; i<crashArray.length; i++) {
 					catCrash.push(typeDict[crashArray[i][0]]);
 					sumCrash.push(crashArray[i][1]);
 				};
 				return [catCrash, sumCrash];
 
-			}
-
-			function sortDate(array){
-				array.sort(function(a, b){
-					c = new Date(a[0]);
-					d = new Date(b[0]);
-					return c-d;
-				})
-			}; 
+			};
 
 			var reportingInjury = new Dialog({
 				title: "Injury Trend Report",
@@ -962,9 +1017,10 @@ require([
 				title: "Crash Variable Report",
 				content: "<p id='crashTitle' class = 'chartTitle'>Please apply query first!</p> <hr>" + 
 				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
-				"<option value = 0>Collision Variable</option><option value = 1>Party Variable</option>" + 
-				"<option value = 2>Victim Variable</option><option value = 3>CA Variable</option></select>" +
-				"</div><div id = 'crashChart'></div>",
+				"<option value = 0>Collision Variable</option><option value = 1>PCF Variable</option>" + 
+				"<option value = 2>Party Variable</option><option value = 3>Victim Variable</option>" + 
+				"<option value = 4>CA Variable</option>" +
+				"</select></div><div id = 'crashChart'></div>",
 				style: "width: 650px"
 			});
 
@@ -1095,11 +1151,12 @@ require([
     		});
 
     		on(dom.byId("crashReport"), "click", function(){
+    			dquery("#variable")[0].value = 0;
     			if(doquery) {
 	    			var start = dom.byId("startDate").value;
 	    			var end = dom.byId("endDate").value;
 	    			var buffer = dom.byId('buffer').value;
-	    			var d = groupCrash(crashType);
+	    			var d = groupCrash(crashType, 0);
 	    			crashChart.series[0].update({
 	    				data: d[1]
 	    			});
@@ -1115,7 +1172,16 @@ require([
 
     		on(dom.byId("variable"), "change", function(){
     			var variable = dom.byId("variable").value;
-    			console.log(variable);
+    			var d = [];
+    			if (variable == 0) {
+    				d = groupCrash(crashType, 0);
+    				crashChart.setTitle({text: 'Type of Collision'})
+    			} else if (variable == 1) {
+    				d = groupCrash(pcfType, 1);
+    				crashChart.setTitle({text: "PCF Violation Category"});
+    			};
+	    		crashChart.series[0].update({data: d[1]});
+	    		crashChart.xAxis[0].setCategories(d[0]);
     		});
 
     		registry.byId("tribeBond").on("change", function(isChecked){
@@ -1137,6 +1203,31 @@ require([
 	    			}
     			}
     		}, true);
+
+    		registry.byId("tribe").on("change", function(isChecked){
+    			if(isChecked){
+    				tribeLayer.visible = true;
+    			} else {
+    				tribeLayer.visible = false;
+    			}
+    		}, true);
+
+    		Highcharts.setOptions({
+    			colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
+    			"#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
+				title: {
+				  	style: {
+				     	color: "#666666",
+				     	fontSize: '16px',
+				     	// fontWeight: 'bold'
+				  	}
+				},
+				plotOptions: {
+					series: {
+				     	shadow: true
+				  	}
+				}
+			});
 
 			var yearChart = new Highcharts.Chart({
 			    chart: {
@@ -1171,19 +1262,7 @@ require([
 		                    fontFamily: 'Verdana, sans-serif'
 		                }
             		}
-			    }
-
-			    // , {
-			    // 	type: 'spline',
-			    // 	name: 'Average',
-			    // 	marker: {
-		     //            lineWidth: 2,
-		     //            lineColor: Highcharts.getOptions().colors[1],
-		     //            fillColor: 'white'
-       //      		}
-			    // }
-			    ]
-
+			    }]
 			});
 			var monthChart = new Highcharts.Chart({
 			    chart: {
@@ -1225,7 +1304,7 @@ require([
 			        renderTo: 'crashChart',
 			    },
 			    title: {
-			    	text: 'Collision Type'
+			    	text: 'Type of Collision'
 			    },
 			    yAxis: {
 		    		title: {text: "Sum of Collisions"}

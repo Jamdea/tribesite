@@ -77,8 +77,6 @@
                     <div id="bufferBox" class = "checkbox">
                     </div>
                     <label for="bufferBond">Show Buffer</label>
-
-                    
                     <br>
                     <br>
                     <button id="doBtn" class = "actionBtn">Submit</button>
@@ -105,12 +103,16 @@
     					<div id="osm">Open Street Map</div>
     				</div>
     			</li>
-			<li><a href = "#layers">Layers</a></li>
+			<li class = "dropdownHover">
+        <a href = "#layers" class = "dropbtnHover" title = "Map layerss">Layers</a>
+        <div class = "dropdnHover-content">
+            <div id = "tribeLayer"><label for="tribe">Tribe Area</label></div>
+        </div>
+      </li>
 			<li><a href = "#options">Options</a></li>
 			<li class = "dropdownHover">
-        <a href = "#tools" class = "dropbtnHover">Reporting</a>
+        <a href = "#report" class = "dropbtnHover" title="Create reporting charts">Reporting</a>
         <div class = "dropdnHover-content">
-          <!-- <div title = "Create injurt reports" onclick = "reporting.show();" id = "report">Reporting</div> -->
           <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
           <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
         </div>

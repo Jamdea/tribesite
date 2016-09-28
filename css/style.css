@@ -238,7 +238,7 @@ This class makes the topnav look good on small screens */
 }*/
 
 /*floating popup*/
-.esri-popup .esri-container {
+/*.esri-popup .esri-container {
 	z-index: 1000;
 	max-height: 350px;
 }
@@ -247,7 +247,15 @@ This class makes the topnav look good on small screens */
 	z-index: 1000;
     max-height: 300px;
 }
+*/
 
+.esri-popup__size-container {
+    z-index: 1000;
+}
+
+.esri-view-height-medium .esri-popup__content {
+    max-height: 300px;
+}
 
 .dropdnHover-content {
     display: none;
@@ -488,4 +496,22 @@ tr:nth-child(even) {
     position: relative;
     left: 5px;
 /*    top: 5px;*/
+}
+
+#tribe {
+    float: left;
+    clear: both;
+}
+#tribeLayer label {
+    position: relative;
+    bottom: 1px;
+    left: 5px;
+}
+#tribeLayer div {
+    margin: 0;
+    padding: 0;
+}
+
+#tribeLayer {
+    cursor: default;
 }
