@@ -101,7 +101,7 @@ a:active {
 
 .menubar {
 	position: absolute;
-	z-index: 3;
+	z-index: 4;
 	width: 100%;
 	/*top: 0px;*/
 }
@@ -296,8 +296,8 @@ This class makes the topnav look good on small screens */
     max-height: 600px;
     overflow: auto;
     /*background-color: white;*/
-    right: 20px;
-    top: 100px;
+    right: 15px;
+    top: 130px;
     font-family:verdana;
     /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
     padding: 0px 10px 10px 10px;
@@ -392,8 +392,8 @@ tr:nth-child(even) {
 #infoIcon {
 	float: right;
 	cursor: pointer;
-    right: 20px;
-    top: 70px;
+    right: 15px;
+    top: 100px;
     position: absolute;
     z-index: 2;
     height: 30px;
@@ -492,6 +492,10 @@ tr:nth-child(even) {
     height: 200px;
 }
 
+#monthChart {
+    height: 250px;
+}
+
 #crashVari {
     position: relative;
     left: 5px;
@@ -515,3 +519,9 @@ tr:nth-child(even) {
 #tribeLayer {
     cursor: default;
 }
+
+.esri-search__container {
+    z-index: 3;
+}
+
+ /*esri-search--has-value esri-search--show-suggestions*/

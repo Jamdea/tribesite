@@ -79,7 +79,7 @@
                     <label for="bufferBond">Show Buffer</label>
                     <br>
                     <br>
-                    <button id="doBtn" class = "actionBtn">Submit</button>
+                    <button id="doBtn" class = "actionBtn">Apply</button>
 			    	<button id="clearBtn" class = "actionBtn">Clear Search</button>
 			    	<br>
 			    	<!-- <p><span id="printResults"></span></p> -->
@@ -104,7 +104,7 @@
     				</div>
     			</li>
 			<li class = "dropdownHover">
-        <a href = "#layers" class = "dropbtnHover" title = "Map layerss">Layers</a>
+        <a href = "#layers" class = "dropbtnHover" title = "Map layers">Layers</a>
         <div class = "dropdnHover-content">
             <div id = "tribeLayer"><label for="tribe">Tribe Area</label></div>
         </div>
@@ -144,8 +144,8 @@
             <span id = "noTribeText"></span>
             <br>
                 <table id = "tribeTable">
-                  <col width= "70%">
-                  <col width= "30%">
+                  <col width= "68%">
+                  <col width= "32%">
 <!--                   <tr>
                     <th colspan= 2>Tribal Summary</th>
                   </tr> -->
@@ -240,7 +240,7 @@
                     <td id = "carVictim"></td>
                   </tr>
                   <tr>
-                    <td>Impaired Victims:</td>
+                    <td>Alcohol-Involved Victims:</td>
                     <td id = "impairedVictim"></td>
                   </tr>
                 </table>

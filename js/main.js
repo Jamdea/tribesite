@@ -33,6 +33,7 @@ require([
   		"esri/tasks/support/PrintParameters",
   		"dijit/Dialog",
   		"esri/widgets/Legend",
+  		"esri/widgets/Search",
   		// "dojo/dom-geometry",
 
 		"dojo/domReady!"	
@@ -41,7 +42,7 @@ require([
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend
+			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, Search
 			){
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -62,6 +63,7 @@ require([
 			var doquery = false;
 
 			var resultsLyr = new GraphicsLayer();
+			// var resultsLyr = new FeatureLayer();
 			var tribeLyr = new GraphicsLayer();
 			var buffferLyr = new GraphicsLayer();
 
@@ -91,11 +93,14 @@ require([
 				extent: oriExtent,
 				ui: {
         			components: ["zoom"],
-        			padding: {top: 100}
+        			padding: {top: 60}
         		}
 			});
 
-			view.popupManager.enabled = false;		
+			view.popupManager.enabled = false;
+			view.ui.add(new Search({
+				view: view
+			}), "top-right");		
 
 			var box1 = new CheckBox({
 				id: "tribeBond",
@@ -310,25 +315,16 @@ require([
 			map.add(tribeLayer);
 			map.add(resultsLyr);
 			//map.add(switrsLayer);
-			var legend = new Legend({
-			  	view: view,
-			  	layerInfos: [
-			  	{
-			  		layer: resultsLyr,
-			  		title: "Collision"
-			  	},
-			  	{
-			    	layer: tribeLayer,
-			    	title: "Tribe Area"
-			  	},
-			  	{
-			  		layer: buffferLyr,
-			  		title: "Buffer"
-			  	}
-			  	]
-			});
+			// var legend = new Legend({
+			//   	view: view,
+			//   	layerInfos: [
+			//   	{
+			//     	layer: tribeLayer,
+			//     	title: "Tribe Area"
+			//   	}]
+			// });
 
-			view.ui.add(legend, "bottom-right");
+			// view.ui.add(legend, "bottom-right");
 
 			var qTask = new QueryTask({
 				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
@@ -347,6 +343,22 @@ require([
 			// 	}
 			// };
 
+			var reportingInjury = new Dialog({
+				title: "Injury Trend Report",
+				content: "<p id='injuryTitle' class = 'chartTitle'>Please apply query first!</p> <hr> <div id='yearChart' class = 'chart'></div> <div id = 'monthChart' class = 'chart'>",
+				style: "width: 650px"
+			});
+
+			var reportingCrash = new Dialog({
+				title: "Crash Variable Report",
+				content: "<p id='crashTitle' class = 'chartTitle'>Please apply query first!</p> <hr>" + 
+				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
+				"<option value = 0>Collision Variable</option><option value = 1>PCF Variable</option>" + 
+				"<option value = 2>Party Variable</option><option value = 3>Victim Variable</option>" + 
+				"<option value = 4>CA Variable</option>" +
+				"</select></div><div id = 'crashChart'></div>",
+				style: "width: 650px"
+			});
 			// read all tribe names and parse to html
 			tribeLayer.then(function(result){
 				return view.map.layers.getItemAt(0).load();
@@ -506,10 +518,12 @@ require([
 			var datePoints = [];
 			var crashType = [];
 			var pcfType = [];
+			var partyType = [];
 			function getResults(response){
 				datePoints = [];
 				crashType = [];
 				pcfType = [];
+				partyType = [];
 				var fatalVitm = 0;
 				var severeVitm = 0;
 				var switrsResults = arrayUtils.map(response.features, function(feature){
@@ -528,6 +542,8 @@ require([
 					datePoints.push(feature.attributes.DATE_);
 					crashType.push(feature.attributes.CRASHTYP);
 					pcfType.push(feature.attributes.VIOLCAT);
+					partyType.push(feature.attributes.INVOLVE);
+					// console.log(feature.attributes)
 					return feature;
 				});
 				// console.log(datePoints);
@@ -535,7 +551,9 @@ require([
 				dom.byId("severe").innerHTML = severeVitm;
 				dom.byId("totalVictim").innerHTML = severeVitm + fatalVitm;
 				// view.graphics.add(switrsResults);
+
 				resultsLyr.addMany(switrsResults);
+
 				// console.log(response.spatialReference.wkid);
 				
 				//map.add(resultsLyr);
@@ -570,6 +588,16 @@ require([
 				// dquery("#info").style("display", "none");
 				tribeSelected = false;
 				doquery = false;
+				//clear chart
+				yearChart.series[0].update({data: []});
+				yearChart.series[1].update({data: []});
+				monthChart.series[0].update({data: []});
+				monthChart.series[1].update({data: []});
+				crashChart.series[0].update({data: []});
+				crashChart.setTitle({text: 'Type of Collision'});
+				dom.byId("crashTitle").innerHTML = "Please apply query first!";
+				dom.byId("injuryTitle").innerHTML = "Please apply query first!";
+
 				if(showinfo){
 					hideInfo();
 					showinfo = false;
@@ -769,7 +797,7 @@ require([
 					// console.log("first time show: " + heightVitm);
 					dom.byId("noInjurText").innerHTML = "";
 				} else {
-					dom.byId("noInjurText").innerHTML = "&nbsp&nbspPlease apply query";
+					dom.byId("noInjurText").innerHTML = "&nbsp&nbspPlease apply query!";
 				}
 				showinfoInjur = true;		
 				dquery("#injurToggle")[0].title = "Hide severe injury info";	
@@ -885,35 +913,48 @@ require([
 				dom.byId("tribePop").innerHTML = feature.attributes.Population;
 				dom.byId("tribeCounty").innerHTML = feature.attributes.COUNTY;
 				dom.byId("tribeArea").innerHTML = area.toFixed(2);
-				dom.byId("tribeTrans").innerHTML = feature.attributes.Trans_Agency;
+				dom.byId("tribeTrans").innerHTML = formatInfo(feature.attributes.Trans_Agency);
 				dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
 				if(police) {
-					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police + 
+					dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police) + 
 					" (<a href = '" + police + "' target='_blank'>Website</a>)";
 				} else {
-					dom.byId("tribePolice").innerHTML = feature.attributes.Tribal_Police;
+					dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police);
 				};
 				if(court) {
-					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court + 
+					dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court) + 
 					" (<a href = '" + court + "' target='_blank'>Website</a>)";						
 				} else {
-					dom.byId("tribeCourt").innerHTML = feature.attributes.Tribal_Court;
+					dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court);
 				};
 				if(fire) {
-					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department + 
+					dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department) + 
 					" (<a href = '" + fire + "' target='_blank'>Website</a>)";								
 				} else {
-					dom.byId("tribeFire").innerHTML = feature.attributes.Tribal_Fire_Department;
+					dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department);
 				};
 				if(ems) {
-					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS + 
+					dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS) + 
 					" (<a href = '" + ems + "' target='_blank'>Website</a>)";						
 				} else {
-					dom.byId("tribeEms").innerHTML = feature.attributes.Tribal_EMS;
+					dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS);
 				};
-				dom.byId("tribeCasino").innerHTML = feature.attributes.Casino;
-				dom.byId("tribeInfra").innerHTML = feature.attributes.Roadway_Data;
+				dom.byId("tribeCasino").innerHTML = formatInfo(feature.attributes.Casino);
+				dom.byId("tribeInfra").innerHTML = formatInfo(feature.attributes.Roadway_Data);
 			};
+
+			function formatInfo(text) {
+				var newText;
+				if(text == "Y") {
+					newText = "Yes";
+				} else if (text == "N") {
+					newText = "No";
+				} else {
+					newText = "No Data"
+				};
+				return newText;
+
+			}
 
 			function groupDate(array){
 				var yearGroup = {2004: 0, 2005: 0, 2006: 0, 2007: 0, 2008: 0, 2009: 0, 
@@ -928,8 +969,7 @@ require([
 					var month = d.getMonth();
 					yearGroup[year] += 1;
 					monthGroup[month] += 1;
-				};
-				console.log(monthGroup);			
+				};			
 				for(key in yearGroup) {
 					if (key != 2004){
 						yearArray.push(yearGroup[key]);
@@ -938,7 +978,10 @@ require([
 				for(key in monthGroup) {
 					monthArray.push(monthGroup[key]);
 				};
-				return [yearArray, monthGroup];
+				var index = yearArray.findIndex(function (val) {
+  					return val>0;
+				});
+				return [yearArray.slice(index), monthArray];
 			};
 
 			function groupCrash(array, type){
@@ -981,7 +1024,21 @@ require([
 						'24': 'Fell Asleep',
 						'00': 'Unknown',
 						'-': 'Not Stated'
-					}
+					};
+				} else if (type == 2) {
+					typeDict = {
+						'A': 'Non-Collision',
+						'B': 'Pedestrian',
+						'C': 'Other Motor Vehicle',
+						'D': 'Motor Vehicle on Other Roadway',
+						'E': 'Parked Motor Vehicle',
+						'F': 'Train',
+						'G': 'Bicycle',
+						'H': 'Animal',
+						'I': 'Fixed Object',
+						'J': 'Other Object',
+						'-': 'Not Stated'
+					};
 				};
 
 				for(i=0; i<array.length; i++) {
@@ -998,7 +1055,7 @@ require([
 				crashArray.sort(function(a, b){
 					return b[1] - a[1];
 				});
-				console.log(typeDict);
+				// console.log(crashArray);
 				for(var i=0; i<crashArray.length; i++) {
 					catCrash.push(typeDict[crashArray[i][0]]);
 					sumCrash.push(crashArray[i][1]);
@@ -1007,22 +1064,23 @@ require([
 
 			};
 
-			var reportingInjury = new Dialog({
-				title: "Injury Trend Report",
-				content: "<p id='injuryTitle' class = 'chartTitle'>Please apply query first!</p> <hr> <div id='yearChart' class = 'chart'></div> <div id = 'monthChart' class = 'chart'>",
-				style: "width: 650px"
-			});
-
-			var reportingCrash = new Dialog({
-				title: "Crash Variable Report",
-				content: "<p id='crashTitle' class = 'chartTitle'>Please apply query first!</p> <hr>" + 
-				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
-				"<option value = 0>Collision Variable</option><option value = 1>PCF Variable</option>" + 
-				"<option value = 2>Party Variable</option><option value = 3>Victim Variable</option>" + 
-				"<option value = 4>CA Variable</option>" +
-				"</select></div><div id = 'crashChart'></div>",
-				style: "width: 650px"
-			});
+			function calMovingAvg(series, period){
+				var sumAvg = 0;
+				var data = []
+				for(var i=0; i<series.data.length; i++) {
+					sumAvg += series.data[i].y;
+					if(i<period-1) {
+						data.push(null);
+					} else if (i == period - 1) {
+						data.push(parseFloat((sumAvg/period).toFixed(2)));
+					} else {
+						sumAvg -= series.data[i-period].y;
+						// data.push([series.data[i].category, parseFloat((sumAvg/period).toFixed(2))]);
+						data.push(parseFloat((sumAvg/period).toFixed(2)));
+					}
+ 				}
+ 				return data.slice(1);	
+			};
 
 			on(dom.byId("tribename"), "change", function(){
 				gotoTribe();
@@ -1035,7 +1093,7 @@ require([
 
 			on(dom.byId("clearBtn"), "click", resetView);
 
-			var basemapArray = ["streets", "satellite", "hybrid", "topo"];
+			// var basemapArray = ["streets", "satellite", "hybrid", "topo"];
 			// on(dom.byId("streets"), "click", changeBasemap(dom.byId("streets").id));
 			on(dom.byId("streets"), "click", function(){
 				map.basemap = dom.byId("streets").id
@@ -1121,15 +1179,30 @@ require([
 	    			var buffer = dom.byId('buffer').value;
 	    			var injurLevel = dom.byId('injury').value;
 	    			var average = [];
+	    			var cat = ['2005', '2006', '2007', '2008', '2009', '2010', 
+			            '2011', '2012', '2013', '2014', '2015'];
+			        var index = cat.length - d[0].length;
 	    			// for(i=0; i<d.length; i++) {
 	    			// 	average.push(d[i]/2);
 	    			// }
+	    			
 	    			yearChart.series[0].update({
 	    				data: d[0]
 	    			});
+	    			yearChart.xAxis[0].setCategories(cat.slice(index));
+	    			var yearAvg = calMovingAvg(yearChart.series[0], 3);
+	    			yearChart.series[1].update({
+	    				data: yearAvg
+	    			});
+	    			
 	    			monthChart.series[0].update({
 	    				data: d[1]
 	    			});
+	    			var monAvg = calMovingAvg(monthChart.series[0], 3);
+	    			monthChart.series[1].update({
+	    				data: monAvg
+	    			});
+
 
 	    			dom.byId('injuryTitle').innerHTML = reportTribe;
 
@@ -1152,6 +1225,7 @@ require([
 
     		on(dom.byId("crashReport"), "click", function(){
     			dquery("#variable")[0].value = 0;
+    			crashChart.setTitle({text: 'Type of Collision'});
     			if(doquery) {
 	    			var start = dom.byId("startDate").value;
 	    			var end = dom.byId("endDate").value;
@@ -1174,11 +1248,14 @@ require([
     			var variable = dom.byId("variable").value;
     			var d = [];
     			if (variable == 0) {
-    				d = groupCrash(crashType, 0);
+    				if(doquery) d = groupCrash(crashType, 0);
     				crashChart.setTitle({text: 'Type of Collision'})
     			} else if (variable == 1) {
-    				d = groupCrash(pcfType, 1);
+    				if(doquery) d = groupCrash(pcfType, 1);
     				crashChart.setTitle({text: "PCF Violation Category"});
+    			} else if (variable == 2) {
+    				if(doquery) d = groupCrash(partyType, 2);
+    				crashChart.setTitle({text: "Motor Vehicle Involved With"});
     			};
 	    		crashChart.series[0].update({data: d[1]});
 	    		crashChart.xAxis[0].setCategories(d[0]);
@@ -1226,6 +1303,11 @@ require([
 					series: {
 				     	shadow: true
 				  	}
+				},
+				chart: {
+					style: {
+						fontFamily: "verdana"
+					}
 				}
 			});
 
@@ -1247,6 +1329,11 @@ require([
 			    },
 			    legend: {
             		enabled: false
+		    		// itemStyle: {width: 120},
+		    		// layout: "vertical",
+		    		// align: "right",
+		    		// verticalAlign: "middle",
+		    		// borderWidth: 0
         		},
 			    credits:{enabled:false},
 			    series: [{
@@ -1262,6 +1349,14 @@ require([
 		                    fontFamily: 'Verdana, sans-serif'
 		                }
             		}
+			    }, {
+			    	type: "spline",
+			    	name: 'Moving Average (3 years)',
+			    	marker: {
+			    		lineColor: Highcharts.getOptions().colors[1],
+			    		lineWidth: 2,
+			    		fillColor: "white"
+			    	}
 			    }]
 			});
 			var monthChart = new Highcharts.Chart({
@@ -1280,7 +1375,13 @@ require([
 		    		title: {text: "Sum of Collisions"}
 		    	},
 		    	legend: {
-		    		enabled: false
+		    		// enabled: false
+		    		// itemWidth: 80,
+		    		// itemStyle: {width: 120},
+		    		// layout: "vertical",
+		    		// align: "right",
+		    		// verticalAlign: "middle",
+		    		// borderWidth: 0
 		    	},
 			    credits:{enabled:false},
 			    series: [{
@@ -1296,6 +1397,14 @@ require([
 		                    fontFamily: 'Verdana, sans-serif'
 		                }
             		}
+			    }, {
+			    	type: "spline",
+			    	name: 'Moving Average (3 years)',
+			    	marker: {
+			    		lineColor: Highcharts.getOptions().colors[1],
+			    		lineWidth: 2,
+			    		fillColor: "white"
+			    	}
 			    }]
 			});
 
@@ -1310,7 +1419,7 @@ require([
 		    		title: {text: "Sum of Collisions"}
 		    	},
 		    	legend: {
-		    		enabled: false
+		    		// enabled: false
 		    	},
 		    	credits: {enabled: false},
 			    series: [{
