@@ -109,7 +109,29 @@
             <div id = "tribeLayer"><label for="tribe">Tribe Area</label></div>
         </div>
       </li>
-			<li><a href = "#options">Options</a></li>
+			<li class = "dropdownHover">
+        <a href = "#options" class = "dropbtnHover" title="Change collision point symbol">Symbol</a>
+        <div class = "dropdnHover-content" id = "symbolOptions">
+          <div>
+            <p>Choose Symbol Size: <span id="sizetext">8</span></p>
+            <input type="range" id="symbolsize" value="8" min="5" max="15">
+          </div>
+          <div>
+            <p>Choose an Attribute to Show:</p>
+            <select id = "symbol">
+              <option value = 0>Default</option>
+              <option value = 1>Collision Severity</option>
+<!--               <option value = 2>Type of Collision</option> -->
+            </select>
+            <br>
+            <br>
+            <div id="setSymbol">
+              Color:
+              <a href="#" class = "collisionSymbol"></a><span class = "symbolText">Collision</span>
+            </div>
+          </div>
+        </div>
+      </li>
 			<li class = "dropdownHover">
         <a href = "#report" class = "dropbtnHover" title="Create reporting charts">Reporting</a>
         <div class = "dropdnHover-content">

@@ -34,15 +34,14 @@ require([
   		"dijit/Dialog",
   		"esri/widgets/Legend",
   		"esri/widgets/Search",
-  		// "dojo/dom-geometry",
-
+  		"esri/renderers/UniqueValueRenderer",
 		"dojo/domReady!"	
 		],
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, Search
+			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, Search, UniqueValueRenderer
 			){
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -62,7 +61,7 @@ require([
 
 			var doquery = false;
 
-			var resultsLyr = new GraphicsLayer();
+			// var resultsLyr = new GraphicsLayer();
 			// var resultsLyr = new FeatureLayer();
 			var tribeLyr = new GraphicsLayer();
 			var buffferLyr = new GraphicsLayer();
@@ -175,16 +174,102 @@ require([
 			});
 
 			var polygonSymbol = new SimpleFillSymbol({
-					color: [255, 255, 255, 0.1],
-					outline: {
-  						width: 2,
-  						color: [51, 173, 255, 0.6]
-  					}
-  				});
+				color: [255, 255, 255, 0.1],
+				outline: {
+					width: 2,
+					color: [51, 173, 255, 0.6]
+				}
+			});
+
 
 			var polygonRenderer = new SimpleRenderer({
 				symbol: polygonSymbol
   			});
+
+  			function generateRenderer(){
+
+	  			var colSize = dom.byId("symbolsize").value;
+	  			var colType = dom.byId("symbol").value;
+	  			var renderer;
+
+				var	pointsymbol = new SimpleMarkerSymbol({
+					color: [255, 100, 0, 0.3],
+					size: colSize,
+					outline: {
+						color: [255, 50, 0, 0.6],
+						width: 1.5
+					}
+				});
+
+				var pointRender = new SimpleRenderer({
+					symbol: pointsymbol
+				});
+
+				var	fatalSymbol = new SimpleMarkerSymbol({
+					color: [255, 173, 153, 0.3],
+					size: colSize,
+					outline: {
+						color: [255, 0, 0, 0.8],
+						width: 1.5
+					}
+				}); 
+				var	sevSymbol = new SimpleMarkerSymbol({
+					color: [255, 255, 100, 0.3],
+					size: colSize,
+					outline: {
+						color: [255, 153, 0, 0.8],
+						width: 1.5
+					}
+				});
+				var	otrSymbol = new SimpleMarkerSymbol({
+					color: [214, 245, 214, 0.3],
+					size: colSize,
+					outline: {
+						color: [51, 204, 51, 0.8],
+						width: 1.5
+					}
+				});
+				var	painSymbol = new SimpleMarkerSymbol({
+					color: [204, 238, 255, 0.3],
+					size: colSize,
+					outline: {
+						color: [102, 204, 255, 0.8],
+						width: 1.5
+					}
+				});
+				var injuryRenderer = new UniqueValueRenderer({
+					defaultSymbol: painSymbol,
+					defaultLabel: "4 - Injury (Complaint of Pain)",
+					field: "CRASHSEV",
+					uniqueValueInfos: [
+					{
+						value: "1",
+						symbol: fatalSymbol,
+						label: "1 - Fatal"
+					}, {
+						value: "2",
+						symbol: sevSymbol,
+						label: "2 - Injury (Severe)"
+
+					}, {
+						value: "3",
+						symbol: otrSymbol,
+						label: "3 - Injury (Other Visible)"
+					}, {
+						value: "4",
+						symbol: painSymbol,
+						label: "4 - Injury (Complaint of Pain)"
+					}]			
+				});
+
+				if(colType == 0) {
+					renderer = pointRender;
+				} else if (colType == 1) {
+					renderer = injuryRenderer;
+				}
+
+				return renderer;
+			}
 
   			var polygonDeselect = new SimpleRenderer({
 				symbol: new SimpleFillSymbol({
@@ -202,7 +287,7 @@ require([
   					width: 2,
   					color: [51, 173, 255, 0.2]
   				}
-  			})
+  			});
 
   			var highlSymbol = new SimpleFillSymbol({
   				color: [255, 255, 255, 0.2],
@@ -210,7 +295,7 @@ require([
   					width: 3,
   					color: [255, 255, 0, 0.8]
   				}
-  			})
+  			});
 
   			var detailsAction = {
   				// title: '<a href = "http://tims.berkeley.edu/tools/query/collision_details.php?no=6326200">view details</a>',
@@ -313,7 +398,7 @@ require([
 			});
 
 			map.add(tribeLayer);
-			map.add(resultsLyr);
+			// map.add(resultsLyr);
 			//map.add(switrsLayer);
 			// var legend = new Legend({
 			//   	view: view,
@@ -389,6 +474,10 @@ require([
 
 			function gotoTribe(){
 				// view.graphics.remove(highlGraphic);
+				var resultsLyr = map.findLayerById("resultsLyr");
+				if(resultsLyr) {
+					map.remove(resultsLyr);
+				}
 				dom.byId("printResults").innerHTML = "";
 				dom.byId("fatalities").innerHTML = "";
 				dom.byId("severe").innerHTML = "";
@@ -406,7 +495,7 @@ require([
 					highlGraphic.symbol = highlSymbol;
 					// highlGraphic.symbol = highlSymbol;
 					view.graphics.add(highlGraphic);
-					view.goTo(highlGraphic);
+					view.goTo(highlGraphic, {easing: "ease-out"});
 
 					showInfoText(featureSet.features[0]);
 					// var area = featureSet.features[0].attributes.Area_sq_mi;
@@ -440,7 +529,11 @@ require([
 				// view.graphics.remove(highlGraphic);
 
 				view.graphics.removeAll();
-				resultsLyr.removeAll();
+				// resultsLyr.removeAll();
+				var resultsLyr = map.findLayerById("resultsLyr");
+				if(resultsLyr) {
+					map.remove(resultsLyr);
+				}
 				tribeLyr.removeAll();
 				buffferLyr.removeAll();
 				var query = new Query({
@@ -502,9 +595,9 @@ require([
 					params.where = "DATE_ >= '" + startDate + "' AND DATE_ <= '" + endDate + "'";
 
 					if(injury.value == 1){
-						params.where += "AND INJURED = 4";
+						params.where += "AND CRASHSEV = 1";
 					} else if(injury.value == 2) {
-						params.where += "AND (INJURED = 3 OR INJURED = 4)";
+						params.where += "AND (CRASHSEV = 1 OR CRASHSEV = 2)";
 					};
 
 					showInfoText(featureSet.features[0]);
@@ -526,16 +619,35 @@ require([
 				partyType = [];
 				var fatalVitm = 0;
 				var severeVitm = 0;
-				var switrsResults = arrayUtils.map(response.features, function(feature){
-					feature.symbol = new SimpleMarkerSymbol({
-						color: [255, 100, 0, 0.8],
-						size: 8,
-						outline: {
-							color: [255, 50, 0, 0.6],
-							width: 1.5
-						}
-					});
-					feature.popupTemplate = poptemplate;
+				// var x = dom.byId("symbolsize").value;
+				// pointRender.symbol.size = x;
+				var renderer = generateRenderer();
+				var option = {
+					id: "resultsLyr",
+					fields: response.fields,
+					source: response.features,
+					objectIdField: "CASEID",
+					geometryType: "point",
+					spatialReference: response.spatialReference,
+					renderer: renderer,
+					// renderer: injuryRenderer,
+					popupTemplate: poptemplate
+				};
+				// gloabl variable
+				resultsLyr = new FeatureLayer(option);
+				map.add(resultsLyr);
+				// resultsLyr = FeatureLayer(option);
+
+				arrayUtils.map(response.features, function(feature){
+					// feature.symbol = new SimpleMarkerSymbol({
+					// 	color: [255, 100, 0, 0.3],
+					// 	size: 8,
+					// 	outline: {
+					// 		color: [255, 50, 0, 0.6],
+					// 		width: 1.5
+					// 	}
+					// });
+					// feature.popupTemplate = poptemplate;
 					fatalVitm += feature.attributes.KILLED;
 					severeVitm += feature.attributes.INJURED;
 
@@ -543,23 +655,22 @@ require([
 					crashType.push(feature.attributes.CRASHTYP);
 					pcfType.push(feature.attributes.VIOLCAT);
 					partyType.push(feature.attributes.INVOLVE);
-					// console.log(feature.attributes)
-					return feature;
 				});
+
 				// console.log(datePoints);
 				dom.byId("fatalities").innerHTML = fatalVitm;
 				dom.byId("severe").innerHTML = severeVitm;
 				dom.byId("totalVictim").innerHTML = severeVitm + fatalVitm;
 				// view.graphics.add(switrsResults);
 
-				resultsLyr.addMany(switrsResults);
+				// resultsLyr.addMany(switrsResults);
 
 				// console.log(response.spatialReference.wkid);
 				
 				//map.add(resultsLyr);
 				//view.goTo(switrsResults);
 				//view.extent = tribeResults.fullExtent;
-				dom.byId("printResults").innerHTML += ": " + switrsResults.length + " collisions found";
+				dom.byId("printResults").innerHTML += ": " + response.features.length + " collisions found";
 				// dquery("#info").style("display", "block");
 				// dquery("#victimTable").style("display", "table");
 				// heightVitm = 1;
@@ -579,7 +690,11 @@ require([
 
 			function resetView(){
 				view.graphics.removeAll();
-				resultsLyr.removeAll();
+				// resultsLyr.removeAll();
+				var resultsLyr = map.findLayerById("resultsLyr");
+				if(resultsLyr) {
+					map.remove(resultsLyr);
+				}
 				buffferLyr.removeAll();
 				tribeLyr.removeAll();
 				tribeLayer.definitionExpression = "OBJECTID_12 LIKE '%'";
@@ -657,7 +772,7 @@ require([
 				dquery("#infoPanel").style("box-shadow", "none");
 				dquery("#infoIcon")[0].title = "Display tribe info window";
 				dquery("#infoIcon").style("width", "auto");
-				dquery("#infoIcon").style("border-radius", "5px");
+				// dquery("#infoIcon").style("border-radius", "5px");
 				showinfo = false;
 			}
 
@@ -1260,6 +1375,51 @@ require([
 	    		crashChart.series[0].update({data: d[1]});
 	    		crashChart.xAxis[0].setCategories(d[0]);
     		});
+
+    		on(dom.byId("symbolsize"), "change", function(){
+    			var x = dom.byId("symbolsize").value;
+				var resultsLyr = map.findLayerById("resultsLyr");
+				if (resultsLyr) {
+	    			
+					// var	pointsymbol = new SimpleMarkerSymbol({
+					// 		color: [255, 100, 0, 0.3],
+					// 		size: x,
+					// 		outline: {
+					// 			color: [255, 50, 0, 0.6],
+					// 			width: 1.5
+					// 		}
+					// 	});
+
+					// var renderer = new SimpleRenderer({
+					// 	symbol: pointsymbol
+					// });
+
+	    			resultsLyr.renderer = generateRenderer(); 			
+	    		}
+				dom.byId("sizetext").innerHTML = x;
+    		})
+
+    		on(dom.byId("symbol"), "change", function(){
+    			var resultsLyr = map.findLayerById("resultsLyr");
+    			var type = dom.byId("symbol").value;
+    			if(resultsLyr) {
+    				resultsLyr.renderer = generateRenderer();
+    			}
+				if(type == 0) {
+					dom.byId("setSymbol").innerHTML = 
+					"Color:<a href='#' class = 'collisionSymbol'></a><span class = 'symbolText'>Collision</span>";
+				} else if (type == 1) {
+					dom.byId("setSymbol").innerHTML = 
+					"Color:<a href='#' class = 'collisionSymbol' style = 'background-color: #ffad99; border-color: #ff0000'></a>" + 
+					"<span class = 'symbolText'>1 - Fatal</span><br>" +
+					"<a href='#' class = 'collisionSymbol' style = 'background-color: #ffff64; border-color: #ff9900; left: 42px;'></a>" +
+					"<span class = 'symbolText' style = 'left: 42px'>2 - Injury (Severe)</span><br>" + 
+					"<a href='#' class = 'collisionSymbol' style = 'background-color: #d6f5d6; border-color: #33cc33; left: 42px;'></a>" +
+					"<span class = 'symbolText' style = 'left: 42px'>3 - Injury (Other Visible)</span><br>" +
+					"<a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #66ccff; left: 42px;'></a>" +
+					"<span class = 'symbolText' style = 'left: 42px'>4 - Injury (Complaint of Pain)</span>";
+				}
+    		})
 
     		registry.byId("tribeBond").on("change", function(isChecked){
     			if(doquery){
