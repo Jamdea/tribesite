@@ -37,8 +37,6 @@ a:active {
 	top: 50px;
 	left: 60px;
 	padding: 0px 10px 0px 10px;
-	border-bottom-right-radius: 5px;
-	border-bottom-left-radius: 5px;
 	max-width: 350px;
 }
 
@@ -116,7 +114,7 @@ ul.topnav{
 }
 
 ul.topnav li {
-	margin-right: 20px;
+	margin-right: 10px;
 	float: right;
     /*left: 40px;*/
 }
@@ -217,7 +215,7 @@ This class makes the topnav look good on small screens */
 
 
 .dropdown {
-    /*margin-right: 20px;*/
+    margin-right: 250px;
     /*float: left;*/
 }
 
@@ -226,7 +224,7 @@ This class makes the topnav look good on small screens */
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
 }
 
 /*.show {
@@ -260,9 +258,10 @@ This class makes the topnav look good on small screens */
 .dropdnHover-content {
     display: none;
     position: absolute;
+    /*top:50px;*/
     background-color: #f9f9f9;
     min-width: 190px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
     z-index: 30;
     transition: 0.3s;
     max-height: 300px;
@@ -297,7 +296,7 @@ This class makes the topnav look good on small screens */
     overflow: auto;
     /*background-color: white;*/
     right: 15px;
-    top: 130px;
+    top: 100px;
     font-family:verdana;
     /*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
     padding: 0px 10px 10px 10px;
@@ -372,28 +371,33 @@ tr:nth-child(even) {
 /*    background-color: #b3b3b3;
     color: white;*/
     color: #666666;
-    background-color: #f2f2f2;
-	cursor: pointer;
-	border: 2px solid #cccccc;
-	padding: 5px 10px 5px 10px;
+    background-color: #ffffff;
+    cursor: pointer;
+    border: 0.3px solid #cccccc;
+    padding: 5px 10px 5px 10px;
 	/*border-radius: 5px;*/
-	letter-spacing: 1px;
-	font-weight: bold;
+    letter-spacing: 1px;
+    font-weight: bold;
 	/*position: absolute;*/
-	/*box-shadow: 2px 2px 8px rgba(255,255,255,0.2);*/
+	/*box-shadow: 0px 1px 2px rgba(0,0,0,0.2);*/
 }
 
 .panelHeading:hover {
 	background-color: #cccccc;
+    border: 0.3px solid #f2f2f2;
 	color: #f2f2f2;
 	transition: 0.3s;
+}
+
+.panelHeading:focus {
+  outline: none;
 }
 
 #infoIcon {
 	float: right;
 	cursor: pointer;
     right: 15px;
-    top: 100px;
+    top: 70px;
     position: absolute;
     z-index: 2;
     height: 30px;
@@ -465,12 +469,12 @@ tr:nth-child(even) {
 }
 
 .dijitDialogTitleBar {
-    background-color: #f2f2f2;
+    background-color: #e6e6e6;
     color: #666666;
     /*float: right;*/
     cursor: move;
     padding: 10px 10px 10px 10px;
-    border: 2px solid #cccccc;
+    /*border: 2px solid #cccccc;*/
     font-weight: bold;
     border-top: none;
     display: block;
@@ -525,104 +529,104 @@ tr:nth-child(even) {
 }
 
 input[type=range] {
-  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-  width: 100%; /* Specific width is required for Firefox. */
-  background: transparent; /* Otherwise white in Chrome */
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    width: 100%; /* Specific width is required for Firefox. */
+    background: transparent; /* Otherwise white in Chrome */
 }
 
 input[type=range]:focus {
-  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+    outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
 }
 
 /* Special styling for WebKit/Blink */
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  border: 1px solid #a6a6a6;
-  height: 16px;
-  width: 16px;
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
-  margin-top: -4px; 
-  box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080; 
+    -webkit-appearance: none;
+    border: 1px solid #a6a6a6;
+    height: 16px;
+    width: 16px;
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
+    margin-top: -4px; 
+    box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080; 
 }
 
 /* All the same stuff for Firefox */
 input[type=range]::-moz-range-thumb {
-  box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080;
-  border: 1px solid #a6a6a6;
-  height: 16px;
-  width: 16px;
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
+    box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080;
+    border: 1px solid #a6a6a6;
+    height: 16px;
+    width: 16px;
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
 }
 
 /* All the same stuff for IE */
 input[type=range]::-ms-thumb {
-  box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080;
-  border: 1px solid #a6a6a6;
-  height: 16px;
-  width: 16px;
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
+    box-shadow: 1px 1px 1px #808080, 0px 0px 1px #808080;
+    border: 1px solid #a6a6a6;
+    height: 16px;
+    width: 16px;
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
 }
 
 /*Style track*/
 input[type=range]::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
-  /*background: #3071a9;*/
-  /*box-shadow: 0px 0px 1px #999999;*/
-  background: #e6e6e6;
-  border-radius: 1.3px;
-  /*border: 0.2px solid #010101;*/
-  /*border: 0.2px solid #bfbfbf;*/
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
+    /*background: #3071a9;*/
+    /*box-shadow: 0px 0px 1px #999999;*/
+    background: #e6e6e6;
+    border-radius: 1.3px;
+    /*border: 0.2px solid #010101;*/
+    /*border: 0.2px solid #bfbfbf;*/
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #e6e6e6;
+    background: #e6e6e6;
 }
 
 input[type=range]::-moz-range-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
-  background: #e6e6e6;
-  border-radius: 1.3px;
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
+    background: #e6e6e6;
+    border-radius: 1.3px;
   /*border: 0.2px solid #010101;*/
 }
 
 input[type=range]::-ms-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  background: transparent;
-  border-color: transparent;
-  border-width: 16px 0;
-  color: transparent;
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    border-width: 16px 0;
+    color: transparent;
 }
 input[type=range]::-ms-fill-lower {
-  background: #e6e6e6;
+    background: #e6e6e6;
   /*border: 0.2px solid #010101;*/
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
+    border-radius: 2.6px;
+    box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
 }
 input[type=range]:focus::-ms-fill-lower {
-  background: #e6e6e6;
+    background: #e6e6e6;
 }
 input[type=range]::-ms-fill-upper {
-  background: #e6e6e6;
-  /*border: 0.2px solid #010101;*/
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
+    background: #e6e6e6;
+    /*border: 0.2px solid #010101;*/
+    border-radius: 2.6px;
+    box-shadow: 1px 1px 1px #999999, 0px 0px 1px #999999;
 }
 input[type=range]:focus::-ms-fill-upper {
-  background: #e6e6e6;
+    background: #e6e6e6;
 }
 
 #setSymbol .collisionSymbol {
@@ -644,9 +648,27 @@ input[type=range]:focus::-ms-fill-upper {
 }
 #setSymbol {
     padding: 0px;
+    width: 90%;
     color: inherit;
 }
 
 #symbolOptions {
-    width: 300px;
+    width: 270px;
+}
+
+#searchDiv {
+    position: fixed;
+    margin: 10px 0px 0px 10px;
+    z-index: 4;
+  /*clear: both;*/
+}
+#searchDiv li {
+    float: left;
+    width: 85%;
+    overflow: hidden;
+}
+
+#symbolsize {
+    width: 90%;
+    /*overflow: hidden;*/
 }

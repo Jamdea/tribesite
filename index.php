@@ -86,8 +86,8 @@
 			    	<br>
 			  	</div>
 			<!-- </div>         -->
-			   
-            <li id = "printMap"><a href = "#">Print</a></li>
+          <li><div id = "searchDiv"></div></li> 
+          <li id = "printMap"><a href = "#">Print</a></li>
     			<li class = "dropdownHover">
     				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
     				<div class = "dropdnHover-content" id = "dropdnBasemap">
@@ -110,10 +110,10 @@
         </div>
       </li>
 			<li class = "dropdownHover">
-        <a href = "#options" class = "dropbtnHover" title="Change collision point symbol">Symbol</a>
+        <a href = "#options" class = "dropbtnHover" title="Change collision point symbol">Style</a>
         <div class = "dropdnHover-content" id = "symbolOptions">
           <div>
-            <p>Choose Symbol Size: <span id="sizetext">8</span></p>
+            <p>Choose Collision Symbol Size: <span id="sizetext">8</span></p>
             <input type="range" id="symbolsize" value="8" min="5" max="15">
           </div>
           <div>
