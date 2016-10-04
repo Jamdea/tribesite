@@ -123,7 +123,7 @@ ul.topnav li a, .dropbtnHover{
 	display: inline-block;
 	color: #f2f2f2;
 	text-align: center;
-	padding: 14px 16px;
+	padding: 14px 16px 15px 16px;
 	text-decoration: none;
 	transition: 0.3s;
 	font-size: 17px;
@@ -158,7 +158,7 @@ Show the list item that contains the link to open and close the topnav (li.icon)
   	}
 }
 
-@media screen and (max-width:460px) {
+@media screen and (max-width:520px) {
     #title {
         display: none;
     }
@@ -186,9 +186,9 @@ This class makes the topnav look good on small screens */
   		display: block;
     	text-align: right;
     }
-    ul.topnav.responsive #title {
-        position: absolute;
-    }
+/*    ul.topnav.responsive #title {
+        position: relative;
+    }*/
     ul.topnav.responsive li div.dropdnHover-content {
         position: relative;
     }
@@ -373,7 +373,8 @@ tr:nth-child(even) {
     color: #666666;
     background-color: #ffffff;
     cursor: pointer;
-    border: 0.3px solid #cccccc;
+    outline: 0.3px solid #cccccc;
+    border-width: 0;
     padding: 5px 10px 5px 10px;
 	/*border-radius: 5px;*/
     letter-spacing: 1px;
@@ -384,14 +385,14 @@ tr:nth-child(even) {
 
 .panelHeading:hover {
 	background-color: #cccccc;
-    border: 0.3px solid #f2f2f2;
-	color: #f2f2f2;
+    /*outline: 0.3px solid #f2f2f2;*/
+	color: #ffffff;
 	transition: 0.3s;
 }
 
-.panelHeading:focus {
-  outline: none;
-}
+/*.panelHeading:focus {
+  outline: 0.3px solid #cccccc;
+}*/
 
 #infoIcon {
 	float: right;
@@ -413,7 +414,9 @@ tr:nth-child(even) {
 }
 
 #title {
-	position: relative;
+	/*position: relative;*/
+    position: absolute;
+    left: 250px;
 	/*color: #b8e0b9;*/
 	color: #ffffe6;
 	font-size: 30px;
@@ -469,21 +472,33 @@ tr:nth-child(even) {
 }
 
 .dijitDialogTitleBar {
-    background-color: #e6e6e6;
+    background-color: #ffffff;
+    /*border: 0.3px solid #cccccc;*/
+    outline: 0.3px solid #cccccc;
     color: #666666;
     /*float: right;*/
     cursor: move;
     padding: 10px 10px 10px 10px;
     /*border: 2px solid #cccccc;*/
     font-weight: bold;
-    border-top: none;
+    /*border-top: none;*/
     display: block;
+}
+
+.dijitDialogTitleBar:hover {
+    background-color: #cccccc;
+    color: #ffffff;
+    transition: 0.3s;
 }
 
 .closeText {
     float: right;
     cursor: pointer;
     padding: 0px 5px 0px 5px;
+}
+
+.dijitDialogCloseIcon:focus {
+    outline: none;
 }
 
 .chartTitle {
@@ -640,6 +655,7 @@ input[type=range]:focus::-ms-fill-upper {
     margin-right: 5px;
     background-color: #fff0e6;
     border: 2px solid #ff8566;
+    cursor: default;
 }
 #setSymbol .symbolText {
     position: relative;
@@ -654,6 +670,10 @@ input[type=range]:focus::-ms-fill-upper {
 
 #symbolOptions {
     width: 270px;
+}
+
+#symbolOptions div {
+    cursor: default;
 }
 
 #searchDiv {
@@ -671,4 +691,8 @@ input[type=range]:focus::-ms-fill-upper {
 #symbolsize {
     width: 90%;
     /*overflow: hidden;*/
+}
+
+.esri-popup__button:focus {
+    outline: none;
 }

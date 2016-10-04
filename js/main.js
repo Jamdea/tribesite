@@ -35,13 +35,15 @@ require([
   		"esri/widgets/Legend",
   		"esri/widgets/Search",
   		"esri/renderers/UniqueValueRenderer",
+  		"esri/widgets/Locate",
 		"dojo/domReady!"	
 		],
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
 			dom, on, GraphicsLayer, SimpleMarkerSymbol, Graphic, Point, Geometry,
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
-			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, Search, UniqueValueRenderer
+			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, 
+			Search, UniqueValueRenderer, Locate
 			){
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -97,6 +99,8 @@ require([
 			});
 
 			view.popupManager.enabled = false;
+
+
 			// view.ui.add(new Search({
 			// 	view: view
 			// }), "top-right");
@@ -156,7 +160,19 @@ require([
 			});
 
 			homeBtn.startup();
-			view.ui.add(homeBtn, "top-left");
+			view.ui.add(homeBtn, {
+				position: "top-left",
+				// index: 3
+			});
+
+			var locateBtn = new Locate({
+				view: view
+			});
+			locateBtn.startup();
+			view.ui.add(locateBtn, {
+				position: "top-left",
+				// index: 2
+			});
 			// view.ui.add(toggle, "top-right");
 
 			var overview = new MapView({
@@ -321,7 +337,7 @@ require([
   			};
 
   			var openTribeInfo = {
-  				title: "View tribe details",
+  				title: "Select tribe",
   				id: "view-tribe"
   			}
 
@@ -375,7 +391,7 @@ require([
 					"<p><b>Casino: </b>{Casino}</p>" +
 					"<p><b>Has Transportation Agency: </b>{Trans_Agency}</p>" +
 					"<p><b>Roadway Infrastructure Collection:: </b>{Roadway_Data}</p></div>",
-				// actions: [openTribeInfo],
+				actions: [openTribeInfo],
 				fieldInfos: [{
 					fieldName: "Area_sq_mi",
 					format: {
@@ -393,8 +409,9 @@ require([
           			newWin.focus();
         		}
         		if (evt.action.id === "view-tribe") {
-        			// dquery("#tribename")[0].value = feature.attributes.OBJECTID
-        			// gotoTribe();
+        			dquery("#tribename")[0].value = feature.attributes.OBJECTID_12;
+        			gotoTribe();
+        			// console.log(feature);
 
         			tribeSelected = true;
         			doquery = false;
@@ -751,7 +768,8 @@ require([
 				// console.log("display info");
 				style.set("infoPanel", "opacity", "0");
 				var fadeArgs = {
-					node: "infoPanel"
+					node: "infoPanel",
+					duration: 100
 				};
 				fx.fadeIn(fadeArgs).play();
 				dquery("#infoPanel").style("width", "300px");
@@ -782,7 +800,7 @@ require([
 				style.set("infoPanel", "opacity", "1");
 				var fadeArgs = {
 					node: "infoPanel",
-					duration: 200
+					duration: 100
 				};
 				fx.fadeOut(fadeArgs).play();
 				// dquery("#infoIcon").style("title", "Display tribe info window");
@@ -816,7 +834,7 @@ require([
 					// height = style.get(dom.byId("tribeTable"), 'height');
 					// console.log(height);
 					fx.animateProperty({
-						node: dom.byId("tribeTable"), duration: 200,
+						node: dom.byId("tribeTable"), duration: 100,
 						properties: {
 							opacity: 1,
 							height: heightTribe
@@ -849,7 +867,7 @@ require([
 				heightTribe = style.get(dom.byId("tribeTable"), "height");
 				if(heightTribe != 0) { 
 					fx.animateProperty({
-						node: dom.byId("tribeTable"), duration: 200,
+						node: dom.byId("tribeTable"), duration: 100,
 						properties: {
 							opacity: 0,
 							// height: 1<1 ? height : 0
@@ -872,7 +890,7 @@ require([
 			function showVitmInfo(){
 				if(doquery & heightVitm != 0){
 					fx.animateProperty({
-						node: dom.byId("victimTable"), duration: 200,
+						node: dom.byId("victimTable"), duration: 100,
 						properties: {
 							opacity: 1,
 							height: heightVitm
@@ -898,7 +916,7 @@ require([
 			function hideVitmInfo(){
 				heightVitm = style.get(dom.byId("victimTable"), "height");
 				fx.animateProperty({
-					node: dom.byId("victimTable"), duration: 200,
+					node: dom.byId("victimTable"), duration: 100,
 					properties: {
 						opacity: 0,
 						height: 0
@@ -914,7 +932,7 @@ require([
 			function showInjurInfo(){
 				if(doquery & heightInjur != 0){
 					fx.animateProperty({
-						node: dom.byId("injurTable"), duration: 200,
+						node: dom.byId("injurTable"), duration: 100,
 						properties: {
 							opacity: 1,
 							height: heightInjur
@@ -940,7 +958,7 @@ require([
 			function hideInjurInfo(){
 				heightInjur = style.get(dom.byId("injurTable"), "height");
 				fx.animateProperty({
-					node: dom.byId("injurTable"), duration: 200,
+					node: dom.byId("injurTable"), duration: 100,
 					properties: {
 						opacity: 0,
 						height: 0
@@ -1441,7 +1459,7 @@ require([
 					"<a href='#' class = 'collisionSymbol' style = 'background-color: #d6f5d6; border-color: #33cc33; left: 42px;'></a>" +
 					"<span class = 'symbolText' style = 'left: 42px'>3 - Injury (Other Visible)</span><br>" +
 					"<a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #66ccff; left: 42px;'></a>" +
-					"<span class = 'symbolText' style = 'left: 42px'>4 - Injury (Complaint of Pain)</span>";
+					"<span class = 'symbolText' style = 'left: 42px'>4 - Injury (Complaint of <br>&nbsp&nbsp&nbsp&nbsp&nbspPain)</span>";
 				}
     		})
 
@@ -1602,6 +1620,14 @@ require([
 			    yAxis: {
 		    		title: {text: "Sum of Collisions"}
 		    	},
+		    	// xAxis: {
+		    	// 	labels: {
+		    	// 		rotation: -45,
+		    	// 		style: {
+		    	// 			textOverflow: 'none'
+		    	// 		}
+		    	// 	}
+		    	// },
 		    	legend: {
 		    		// enabled: false
 		    	},
