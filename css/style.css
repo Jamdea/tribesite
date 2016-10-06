@@ -157,7 +157,10 @@ Show the list item that contains the link to open and close the topnav (li.icon)
 @media screen and (max-width:680px) {
     /*.dropdown {margin-right: 0px;}*/
     #overviewDiv {display: none;}
-    #optionsDiv {display: none;}
+    #optionsDiv {
+        display: none;
+        width: 100%;
+    }
 
 	ul.topnav li:not(:first-child) {
         display: none;
@@ -209,7 +212,6 @@ This class makes the topnav look good on small screens */
     ul.topnav.responsive #symbolOptions {
         width: 100%;
     }
-
     ul.topnav.responsive li div.dropdnHover-content {
         position: relative;
     }

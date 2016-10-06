@@ -18,9 +18,9 @@
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 
-  <!-- <script src="http://code.highcharts.com/highcharts.js"></script> -->
-  <script src="https://code.highcharts.com/stock/highstock.js"></script>
-  <script src="http://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <!-- <script src="https://code.highcharts.com/stock/highstock.js"></script> -->
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
 	<link rel="stylesheet" href="css/style.css">
 
@@ -110,7 +110,7 @@
         </div>
       </li>
 			<li class = "dropdownHover">
-        <a href = "#options" class = "dropbtnHover" title="Change collision point symbol">Style</a>
+        <a href = "#options" class = "dropbtnHover" title="Change collision point symbol style">Style</a>
         <div class = "dropdnHover-content" id = "symbolOptions">
           <div>
             <p>Choose Collision Symbol Size: <span id="sizetext">8</span></p>
@@ -137,6 +137,7 @@
         <div class = "dropdnHover-content">
           <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
           <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
+          <div title = "Create victim summary reports" id = "victimReport">Killed/Injured Victim Summary</div>
         </div>
       </li>
       <li id = "title">Tribal TIMS</li>
@@ -166,8 +167,8 @@
             <span id = "noTribeText"></span>
             <br>
                 <table id = "tribeTable">
-                  <col width= "68%">
-                  <col width= "32%">
+                  <col width= "67%">
+                  <col width= "33%">
 <!--                   <tr>
                     <th colspan= 2>Tribal Summary</th>
                   </tr> -->
@@ -221,8 +222,8 @@
                 <span id = "noVictimText"></span>
                 <br>
                 <table id = "victimTable">
-                  <col width= "70%">
-                  <col width= "30%">
+                  <col width= "67%">
+                  <col width= "33%">
 <!--                   <tr>
                     <th colspan= 2>Snapshot of Victims</th>
                   </tr> -->
@@ -244,8 +245,8 @@
                 <span id = "noInjurText"></span>
                 <br>
                 <table id = "injurTable">
-                  <col width= "70%">
-                  <col width= "30%">
+                  <col width= "67%">
+                  <col width= "33%">
 <!--                   <tr>
                     <th colspan= 2>Snapshot of Fatal and Severe Injuries</th>
                   </tr> -->
@@ -258,8 +259,8 @@
                     <td id = "bikeVictim"></td>
                   </tr>
                   <tr>
-                    <td>Motocycle Victims:</td>
-                    <td id = "carVictim"></td>
+                    <td>Motorcycle Victims:</td>
+                    <td id = "motorVictim"></td>
                   </tr>
                   <tr>
                     <td>Alcohol-Involved Victims:</td>

@@ -226,7 +226,7 @@ require([
 	  			var renderer;
 
 				var	pointsymbol = new SimpleMarkerSymbol({
-					color: [255, 100, 0, 0.3],
+					color: [255, 100, 0, 0.4],
 					size: colSize,
 					outline: {
 						color: [255, 50, 0, 0.6],
@@ -239,7 +239,7 @@ require([
 				});
 
 				var	fatalSymbol = new SimpleMarkerSymbol({
-					color: [255, 173, 153, 0.3],
+					color: [255, 173, 153, 0.4],
 					size: colSize,
 					outline: {
 						color: [255, 0, 0, 0.8],
@@ -247,7 +247,7 @@ require([
 					}
 				}); 
 				var	sevSymbol = new SimpleMarkerSymbol({
-					color: [255, 255, 100, 0.3],
+					color: [255, 255, 100, 0.4],
 					size: colSize,
 					outline: {
 						color: [255, 153, 0, 0.8],
@@ -255,7 +255,7 @@ require([
 					}
 				});
 				var	otrSymbol = new SimpleMarkerSymbol({
-					color: [214, 245, 214, 0.3],
+					color: [214, 245, 214, 0.4],
 					size: colSize,
 					outline: {
 						color: [51, 204, 51, 0.8],
@@ -266,7 +266,7 @@ require([
 					color: [204, 238, 255, 0.3],
 					size: colSize,
 					outline: {
-						color: [102, 204, 255, 0.8],
+						color: [0, 153, 230, 0.8],
 						width: 1.5
 					}
 				});
@@ -478,6 +478,12 @@ require([
 				"</select></div><div id = 'crashChart'></div>",
 				style: "width: 650px"
 			});
+
+			var reportingVictim = new Dialog({
+				title: "Killed/Injured Victim Report",
+				content: "<p id='victimTitle' class = 'chartTitle'>Please apply query first!</p> <hr> <div id='genderChart' class = 'chart'></div> <div id = 'ageChart' class = 'chart'>",
+			})
+
 			// read all tribe names and parse to html
 			tribeLayer.then(function(result){
 				return view.map.layers.getItemAt(0).load();
@@ -488,14 +494,21 @@ require([
 				tribeLayer.queryFeatures(tribequery).then(function(featureSet){
 					var features = featureSet.features;
 					var text = "";
+					var nameArray = [];
 					arrayUtils.forEach(features, function(feature){
 						var name = feature.attributes.NAME;
 						if(name.length > 30){
 							name = name.split("Tribe")[0];
 						}
-						text += "<option value='" + feature.attributes.OBJECTID_12 + "'>" + name + "</option>";
+						nameArray.push([name, feature.attributes.OBJECTID_12]);
+						// text += "<option value='" + feature.attributes.OBJECTID_12 + "'>" + name + "</option>";
 						
 					});
+					nameArray.sort();
+					// console.log(nameArray);
+					nameArray.map(function(name){
+						text += "<option value='" + name[1] + "'>" + name[0] + "</option>";
+					})
 					//console.log(text);
 					dquery("#tribename")[0].innerHTML = text;
 				});
@@ -646,6 +659,9 @@ require([
 			var crashType = [];
 			var pcfType = [];
 			var partyType = [];
+			var vicType = [];
+			var genderType = [];
+			var ageType = [];
 			function getResults(response){
 				datePoints = [];
 				crashType = [];
@@ -654,6 +670,7 @@ require([
 				var fatalVitm = 0;
 				var severeVitm = 0;
 				var injurVitm = 0;
+
 				// var x = dom.byId("symbolsize").value;
 				// pointRender.symbol.size = x;
 				var renderer = generateRenderer();
@@ -673,6 +690,8 @@ require([
 				map.add(resultsLyr);
 				// resultsLyr = FeatureLayer(option);
 
+				var caseid = [];
+
 				arrayUtils.map(response.features, function(feature){
 					// feature.symbol = new SimpleMarkerSymbol({
 					// 	color: [255, 100, 0, 0.3],
@@ -686,17 +705,53 @@ require([
 					fatalVitm += feature.attributes.KILLED;
 					injurVitm += feature.attributes.INJURED;
 					severeVitm += feature.attributes.SEVINJ;
-
+					// if (feature.attributes.CRASHSEV == 1 || feature.attributes.CRASHSEV == 2){
+					caseid.push(feature.attributes.CASEID);
+					// }
 					datePoints.push(feature.attributes.DATE_);
 					crashType.push(feature.attributes.CRASHTYP);
 					pcfType.push(feature.attributes.VIOLCAT);
 					partyType.push(feature.attributes.INVOLVE);
 				});
 
-				// console.log(datePoints);
+				dom.byId("printResults").innerHTML += ": " + response.features.length + " collisions found";
 				dom.byId("fatalities").innerHTML = fatalVitm;
 				dom.byId("severe").innerHTML = severeVitm;
 				dom.byId("totalVictim").innerHTML = injurVitm + fatalVitm;
+
+				if (caseid.length) {
+					// query vistim
+					// console.log(sqlwhere);
+					$.ajax({
+						url: "query.php",
+						type: "POST",
+						dataType: "text",
+						data: {"caseid": caseid}
+					}).done(function(data){
+						var result = data.split(".");
+						var victim = result[0].split(",");
+						vicType = result[1].split(",");
+						ageType = result[2].split(",");
+						genderType = result[3].split(",");
+						// console.log(result[4]);
+						dom.byId("pedVictim").innerHTML = victim[0];
+						dom.byId("bikeVictim").innerHTML = victim[1];
+						dom.byId("motorVictim").innerHTML = victim[2];
+						dom.byId("impairedVictim").innerHTML = victim[3];
+						displayInfo();
+						// for (i in data) console.log(data[i]);
+						// console.log(data.length);
+					});
+				} else {
+					dom.byId("pedVictim").innerHTML = 0;
+					dom.byId("bikeVictim").innerHTML = 0;
+					dom.byId("motorVictim").innerHTML = 0;
+					dom.byId("impairedVictim").innerHTML = 0;
+					displayInfo(); 		
+				}
+				
+
+
 				// view.graphics.add(switrsResults);
 
 				// resultsLyr.addMany(switrsResults);
@@ -706,7 +761,7 @@ require([
 				//map.add(resultsLyr);
 				//view.goTo(switrsResults);
 				//view.extent = tribeResults.fullExtent;
-				dom.byId("printResults").innerHTML += ": " + response.features.length + " collisions found";
+				
 				// dquery("#info").style("display", "block");
 				// dquery("#victimTable").style("display", "table");
 				// heightVitm = 1;
@@ -714,7 +769,7 @@ require([
 				// console.log();
 				doquery = true;
 				heightVitm = 0;
-				displayInfo();
+				// displayInfo();
 
 				// showVitmInfo();		
 				// dquery(".loader").style("display", "none");
@@ -746,8 +801,11 @@ require([
 				monthChart.series[1].update({data: []});
 				crashChart.series[0].update({data: []});
 				crashChart.setTitle({text: 'Type of Collision'});
+				genderChart.series[0].update({data: []});
+				ageChart.series[0].update({data:[]});
 				dom.byId("crashTitle").innerHTML = "Please apply query first!";
 				dom.byId("injuryTitle").innerHTML = "Please apply query first!";
+				dom.byId("victimTitle").innerHTML = "Please apply query first!";
 
 				if(showinfo){
 					hideInfo();
@@ -1072,26 +1130,46 @@ require([
 				dom.byId("tribeTrans").innerHTML = formatInfo(feature.attributes.Trans_Agency);
 				dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
 				if(police) {
-					dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police) + 
-					" (<a href = '" + police + "' target='_blank'>Website</a>)";
+					if (feature.attributes.Tribal_Police == 'Y') {
+						dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police) + 
+						" (<a href = '" + police + "' target='_blank'>Website</a>)";
+					} else {
+						dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police) + 
+						" (<a href = '" + police + "' target='_blank'>More info</a>)";						
+					}
 				} else {
 					dom.byId("tribePolice").innerHTML = formatInfo(feature.attributes.Tribal_Police);
 				};
 				if(court) {
-					dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court) + 
-					" (<a href = '" + court + "' target='_blank'>Website</a>)";						
+					if (feature.attributes.Tribal_Court == 'Y') {
+						dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court) + 
+						" (<a href = '" + court + "' target='_blank'>Website</a>)";
+					} else {
+						dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court) + 
+						" (<a href = '" + court + "' target='_blank'>More info</a>)";	
+					}						
 				} else {
 					dom.byId("tribeCourt").innerHTML = formatInfo(feature.attributes.Tribal_Court);
 				};
 				if(fire) {
-					dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department) + 
-					" (<a href = '" + fire + "' target='_blank'>Website</a>)";								
+					if (feature.attributes.Tribal_Fire_Department == 'Y') {
+						dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department) + 
+						" (<a href = '" + fire + "' target='_blank'>Website</a>)";
+					} else {
+						dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department) + 
+						" (<a href = '" + fire + "' target='_blank'>More info</a>)";		
+					}								
 				} else {
 					dom.byId("tribeFire").innerHTML = formatInfo(feature.attributes.Tribal_Fire_Department);
 				};
 				if(ems) {
-					dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS) + 
-					" (<a href = '" + ems + "' target='_blank'>Website</a>)";						
+					if (feature.attributes.Tribal_EMS == 'Y') {
+						dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS) + 
+						" (<a href = '" + ems + "' target='_blank'>Website</a>)";
+					} else {
+						dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS) + 
+						" (<a href = '" + ems + "' target='_blank'>More info</a>)";	
+					}						
 				} else {
 					dom.byId("tribeEms").innerHTML = formatInfo(feature.attributes.Tribal_EMS);
 				};
@@ -1106,7 +1184,7 @@ require([
 				} else if (text == "N") {
 					newText = "No";
 				} else {
-					newText = "No Data"
+					newText = text;
 				};
 				return newText;
 
@@ -1119,6 +1197,7 @@ require([
 					8: 0, 9: 0, 10: 0, 11: 0};
 				var yearArray = [];
 				var monthArray = [];
+				var yearText = [];
 				for (i=0; i<array.length; i++) {
 					var d = new Date(array[i]);
 					var year = d.getFullYear();
@@ -1129,15 +1208,22 @@ require([
 				for(key in yearGroup) {
 					if (key != 2004){
 						yearArray.push(yearGroup[key]);
+						yearText.push(key);
 					}
 				};
 				for(key in monthGroup) {
 					monthArray.push(monthGroup[key]);
 				};
-				var index = yearArray.findIndex(function (val) {
+				var first = yearArray.findIndex(function (val) {
   					return val>0;
 				});
-				return [yearArray.slice(index), monthArray];
+				yearArray.reverse();
+				var last = yearArray.findIndex(function (val) {
+  					return val>0;
+				});
+				last = yearArray.length - last;
+				yearArray.reverse();
+				return [yearArray.slice(first, last), monthArray, yearText.slice(first, last)];
 			};
 
 			function groupCrash(array, type){
@@ -1195,6 +1281,21 @@ require([
 						'J': 'Other Object',
 						'-': 'Not Stated'
 					};
+				} else if (type == 3) {
+					typeDict = {
+						'1': 'Driver',
+						'2': 'Passenger',
+						'3': 'Pedestrian',
+						'4': 'Bicyclist',
+						'5': 'Other (single victim on/in non-motor vehicle)',
+						'6': 'Non-Injured Party'
+					};
+				} else if (type == 4) {
+					typeDict = {
+						'M': 'Male',
+						'F': 'Female',
+						'-':  'Not Stated'
+					};
 				};
 
 				for(i=0; i<array.length; i++) {
@@ -1218,6 +1319,43 @@ require([
 				};
 				return [catCrash, sumCrash];
 
+			};
+
+			function groupAge(array){
+				var typeDict = {'14 or younger': 0, '15 - 19': 0, '20 - 24': 0, '25 - 44': 0, '45 - 64': 0, '65 or older': 0};
+				var ageArray = [];
+				var typeArray = []; 
+				for (i=0; i<array.length; i++) {
+					var age = parseInt(array[i]);
+					if(age <= 14) {
+						typeDict['14 or younger'] += 1;
+					} else if (age > 14 && age <= 19) {
+						typeDict['15 - 19'] += 1;
+					} else if (age > 19 && age <= 24) {
+						typeDict['20 - 24'] += 1;
+					} else if (age > 24 && age <= 44) {
+						typeDict['25 - 44'] += 1;
+					} else if (age > 44 && age <= 64) {
+						typeDict['45 - 64'] += 1;
+					} else if (age > 65 && age <= 130) {
+						typeDict['65 or older'] += 1;
+					};
+				};
+				for (key in typeDict) {
+					ageArray.push(typeDict[key]);
+					typeArray.push(key);
+				};
+
+				var first = ageArray.findIndex(function (val) {
+  					return val>0;
+				});
+				ageArray.reverse();
+				var last = ageArray.findIndex(function (val) {
+  					return val>0;
+				});
+				last = ageArray.length - last;
+				ageArray.reverse();
+				return [typeArray.slice(first, last), ageArray.slice(first, last)]
 			};
 
 			function calMovingAvg(series, period){
@@ -1346,7 +1484,7 @@ require([
 	    			yearChart.series[0].update({
 	    				data: d[0]
 	    			});
-	    			yearChart.xAxis[0].setCategories(cat.slice(index));
+	    			yearChart.xAxis[0].setCategories(d[2]);
 	    			var yearAvg = calMovingAvg(yearChart.series[0], 3);
 	    			yearChart.series[1].update({
 	    				data: yearAvg
@@ -1401,6 +1539,33 @@ require([
     			reportingCrash.show();
     		});
 
+    		on(dom.byId("victimReport"), "click", function(){
+    			if(doquery) {
+	    			var start = dom.byId("startDate").value;
+	    			var end = dom.byId("endDate").value;
+	    			var buffer = dom.byId('buffer').value;
+    				var d = groupCrash(genderType, 4);
+    				var gdata = [];
+    				var total = d[1].reduce(function(a, b){return a+b;}, 0);
+    				var ageData = groupAge(ageType);
+    				ageChart.series[0].update({data: ageData[1]});
+    				ageChart.xAxis[0].setCategories(ageData[0]);
+    				for(var i=0; i<d[0].length; i++) {
+    					var pct = d[1][i] * 100 / total;
+    					var label = d[0][i] + ": " + pct.toFixed(2) + "%";
+    					gdata.push([label, d[1][i]]);
+    				};
+    				genderChart.series[0].update({data: gdata});
+    				// genderChart.xAxis[0].setCategories(d[0]);
+	    			if (buffer != 0) {
+	    				dom.byId('victimTitle').innerHTML = reportTribe + " (" + buffer + "-Mile Buffer): " + start + " - " + end;
+	    			} else {
+	    				dom.byId('victimTitle').innerHTML = reportTribe + ": " + start + " - " + end;
+	    			};    
+    			};
+    			reportingVictim.show();
+    		})
+
     		on(dom.byId("variable"), "change", function(){
     			var variable = dom.byId("variable").value;
     			var d = [];
@@ -1413,6 +1578,9 @@ require([
     			} else if (variable == 2) {
     				if(doquery) d = groupCrash(partyType, 2);
     				crashChart.setTitle({text: "Motor Vehicle Involved With"});
+    			} else if (variable == 3) {
+    				if(doquery) d = groupCrash(vicType, 3);
+    				crashChart.setTitle({text: "Victim Role"});
     			};
 	    		crashChart.series[0].update({data: d[1]});
 	    		crashChart.xAxis[0].setCategories(d[0]);
@@ -1458,7 +1626,7 @@ require([
 					"<span class = 'symbolText' style = 'left: 42px'>2 - Injury (Severe)</span><br>" + 
 					"<a href='#' class = 'collisionSymbol' style = 'background-color: #d6f5d6; border-color: #33cc33; left: 42px;'></a>" +
 					"<span class = 'symbolText' style = 'left: 42px'>3 - Injury (Other Visible)</span><br>" +
-					"<a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #66ccff; left: 42px;'></a>" +
+					"<a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #0099e6; left: 42px;'></a>" +
 					"<span class = 'symbolText' style = 'left: 42px'>4 - Injury (Complaint of <br>&nbsp&nbsp&nbsp&nbsp&nbspPain)</span>";
 				}
     		})
@@ -1629,7 +1797,7 @@ require([
 		    	// 	}
 		    	// },
 		    	legend: {
-		    		// enabled: false
+
 		    	},
 		    	credits: {enabled: false},
 			    series: [{
@@ -1645,6 +1813,66 @@ require([
 		                    fontFamily: 'Verdana, sans-serif'
 		                }
             		}
+			    }]
+			});
+
+			var ageChart = new Highcharts.Chart({
+			    chart: {
+			        renderTo: 'ageChart',
+			    },
+			    title: {
+			    	text: 'Victim Age'
+			    },
+			    yAxis: {
+		    		title: {text: "Victim Counts"}
+		    	},
+		    	legend: {
+		    		enabled: false
+		    	},
+		    	credits: {enabled: false},
+			    series: [{
+			    	type: 'column',
+			        name: "Victim Counts",
+			        dataLabels: {
+		                enabled: true,
+		                color: '#666666',
+		                align: 'center',
+		                y: 5,
+		                style: {
+		                    fontSize: '10px',
+		                    fontFamily: 'Verdana, sans-serif'
+		                }
+            		}
+			    }]
+			});
+			var genderChart = new Highcharts.Chart({
+			    chart: {
+			        renderTo: 'genderChart'
+			    },
+			    title: {
+			    	text: 'Victim Gender'
+			    },
+	            plotOptions: {
+	                pie: {
+	                    allowPointSelect: true,
+	                    cursor: 'pointer',
+	                    dataLabels: {
+	                        enabled: false
+	                    },
+	                    showInLegend: true
+	                }
+	            },
+		    	legend: {
+		    		layout: "vertical",
+		    		align: "left",
+		    		verticalAlign: "bottom",
+		    		y: -10,
+		    		floating: true
+		    	},
+		    	credits: {enabled: false},
+			    series: [{
+			    	type: 'pie',
+			        name: "Victim Counts"
 			    }]
 			});
 		});
