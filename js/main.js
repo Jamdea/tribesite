@@ -1,3 +1,29 @@
+function formatTime(value){
+	return ("000" + value).substr(-4).replace(/(\d{2})(\d{2})/,"$1:$2");
+};
+
+function directionFormat(value) {
+  var dir = {
+    W: "West",
+    E: "East",
+    N: "North",
+    S: "South"
+  };
+  return dir[value];
+};
+function yesnoFormat(value) {
+  return value == "Y" ? "Yes" : "No";
+};
+function stringFormat(value) {
+  return value.capitalize();
+};
+String.prototype.capitalize = function() {
+  return this.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+  //return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
 require([
 		"esri/Map",
 		"esri/views/MapView",
@@ -137,23 +163,29 @@ require([
 				checked: true
 			});
 
+			var box4 = new CheckBox({
+				id: "crs",
+				checked: false
+			})
+
 			box1.placeAt("boundryBox", "first");
 			box2.placeAt("bufferBox", "first");
 			box3.placeAt("tribeLayer", "first");
+			box4.placeAt("crsLayer", "first");
 
 			// var toggle = new BasemapToggle({
 			// 	view: view,
 			// 	nextBasemap: "osm"
 			// });
 			// toggle.startup();
-			view.watch("updating", function(response){
-				if(response){
-			    	dquery(".loader").style("display", "flex");
-			  	}
-			  	else{
-			  		dquery(".loader").style("display", "none");
-			  }
-			});
+			// view.watch("updating", function(response){
+			// 	if(response){
+			//     	dquery(".loader").style("display", "flex");
+			//   	}
+			//   	else{
+			//   		dquery(".loader").style("display", "none");
+			//   }
+			// });
 
 			var homeBtn = new Home({
 				view: view
@@ -349,16 +381,16 @@ require([
 			popContent+= "Killed: {KILLED}<br>";
 			popContent+= "Injured: {INJURED}<br>";
 			popContent+= "Crash severity: {CRASHSEV}<br>";
-			popContent+= "Alcohol Involved: {ETOH}<br>"
-			popContent+= "Pedestrian: {PEDCOL}<br>";
-			popContent+= "Bicycle: {BICCOL}<br>";
-			popContent+= "Motorcycle: {MCCOL}<br>";
-			popContent+= "Truck: {TRUCKCOL}<br></td>";
-			popContent+= "<td width='140px' style='padding: 2px 5px 2px 5px;'>Primary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{PRIMARYRD}<br>";
-			popContent+= "Secondary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{SECONDRD}<br>";
-			popContent+= "Intersection: {INTERSECT_}<br>";
+			popContent+= "Alcohol Involved: {ETOH: yesnoFormat}<br>"
+			popContent+= "Pedestrian: {PEDCOL: yesnoFormat}<br>";
+			popContent+= "Bicycle: {BICCOL: yesnoFormat}<br>";
+			popContent+= "Motorcycle: {MCCOL: yesnoFormat}<br>";
+			popContent+= "Truck: {TRUCKCOL: yesnoFormat}<br></td>";
+			popContent+= "<td width='140px' style='padding: 2px 5px 2px 5px;'>Primary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{PRIMARYRD: stringFormat}<br>";
+			popContent+= "Secondary: <br>&nbsp;&nbsp;&nbsp;&nbsp;{SECONDRD: stringFormat}<br>";
+			popContent+= "Intersection: {INTERSECT_: yesnoFormat}<br>";
 			popContent+= "Offset Distance: {DISTANCE}<br>";
-			popContent+= "Offset Direction: {DIRECT}<br></td></tr></style>";
+			popContent+= "Offset Direction: {DIRECT: directionFormat}<br></td></tr></style>";
 			popContent+= "</table>";
 
 			// var popContent = "<td style='font-size:13px;font-weight:bold;'>SWITRS</td>";
@@ -379,18 +411,18 @@ require([
 			var tribePopupTem = {
 				title: "{TRIBE}",
 				// title: "<a href = '{website}' target = '_blank'>{TRIBE}</a>",
-				content: "<div id='popup'>" +
+				content: "<div class='popup'>" +
 					"<p><b>County: </b>{COUNTY}</p>" + 
 					"<p><b>Population: </b>{Population}</p>" +
 					"<p><b>Area (in sq. miles): </b>{Area_sq_mi}</p>" +  
 					"<p><b>Road Miles: </b>{Road_mileage_total}</p>" + 
-					"<p><b>Tribal Police: </b>{Tribal_Police}</p>" + 
-					"<p><b>Tribal Court: </b>{Tribal_Court}</p>" +
-					"<p><b>Tribal Fire Department: </b>{Tribal_Fire_Department}</p>" +
-					"<p><b>Tribal Emergency Medical Services: </b>{Tribal_EMS}</p>" +
-					"<p><b>Casino: </b>{Casino}</p>" +
-					"<p><b>Has Transportation Agency: </b>{Trans_Agency}</p>" +
-					"<p><b>Roadway Infrastructure Collection:: </b>{Roadway_Data}</p></div>",
+					"<p><b>Tribal Police: </b>{Tribal_Police: yesnoFormat}</p>" + 
+					"<p><b>Tribal Court: </b>{Tribal_Court: yesnoFormat}</p>" +
+					"<p><b>Tribal Fire Department: </b>{Tribal_Fire_Department: yesnoFormat}</p>" +
+					"<p><b>Tribal Emergency Medical Services: </b>{Tribal_EMS: yesnoFormat}</p>" +
+					"<p><b>Casino: </b>{Casino: yesnoFormat}</p>" +
+					"<p><b>Has Transportation Agency: </b>{Trans_Agency: yesnoFormat}</p>" +
+					"<p><b>Roadway Infrastructure Collection: </b>{Roadway_Data: yesnoFormat}</p></div>",
 				actions: [openTribeInfo],
 				fieldInfos: [{
 					fieldName: "Area_sq_mi",
@@ -398,7 +430,21 @@ require([
 						digitSeparator: true,
 						places: 2
 					}
+				}, {
+					fieldName: "Road_mileage_total",
+					format: {
+						digitSeparator: true,
+						places: 2
+					}
 				}]
+			};
+
+			var crsPopupTem = {
+				title: "California Road System", 
+				content: "<div class = 'popup'>" + 
+					"<p><b>Name: </b>{FULLNAME}</p>" + 
+					"<p><b>Functional Class: </b>{FC_DRAFT}</p>" + 
+					"<p><b>County: </b>{COUNTY}</p>"
 			};
 
 			view.popup.on("trigger-action", function(evt) {
@@ -431,7 +477,15 @@ require([
 				popupTemplate: tribePopupTem
 			});
 
+			var crsLayer = new FeatureLayer({
+				url: "http://services2.arcgis.com/iq8zYa0SRsvIFFKz/arcgis/rest/services/CRS_Tribal_upload/FeatureServer/0",
+				outFields: ["*"],
+				popupTemplate: crsPopupTem
+			});
+
 			map.add(tribeLayer);
+			map.add(crsLayer);
+			crsLayer.visible = false;
 			// map.add(resultsLyr);
 			//map.add(switrsLayer);
 			// var legend = new Legend({
@@ -474,7 +528,7 @@ require([
 				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
 				"<option value = 0>Collision Variable</option><option value = 1>PCF Variable</option>" + 
 				"<option value = 2>Party Variable</option><option value = 3>Victim Variable</option>" + 
-				"<option value = 4>CA Variable</option>" +
+				// "<option value = 4>CA Variable</option>" +
 				"</select></div><div id = 'crashChart'></div>",
 				style: "width: 650px"
 			});
@@ -521,15 +575,17 @@ require([
 
 			function gotoTribe(){
 				// view.graphics.remove(highlGraphic);
-				var resultsLyr = map.findLayerById("resultsLyr");
-				if(resultsLyr) {
-					map.remove(resultsLyr);
-				}
-				dom.byId("printResults").innerHTML = "";
-				dom.byId("fatalities").innerHTML = "";
-				dom.byId("severe").innerHTML = "";
-				dom.byId("totalVictim").innerHTML = "";
-				view.graphics.removeAll();
+				resetView();
+				dquery(".loader").style("display", "flex");
+				// var resultsLyr = map.findLayerById("resultsLyr");
+				// if(resultsLyr) {
+				// 	map.remove(resultsLyr);
+				// }
+				// dom.byId("printResults").innerHTML = "";
+				// dom.byId("fatalities").innerHTML = "";
+				// dom.byId("severe").innerHTML = "";
+				// dom.byId("totalVictim").innerHTML = "";
+				// view.graphics.removeAll();
 				var query = new Query({
 					returnGeometry: true,
 					outFields: ["*"],
@@ -563,10 +619,11 @@ require([
 					// dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
 					// dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
 					// dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
+					dquery(".loader").style("display", "none");
 				});
 				//lastSelect = tribeName;
 				tribeSelected = true;
-				doquery = false;
+				// doquery = false;
 				heightTribe = 0;
 				heightVitm = 0;
 				displayInfo();
@@ -650,7 +707,7 @@ require([
 					showInfoText(featureSet.features[0]);
 					reportTribe = featureSet.features[0].attributes.NAME;
 					tribeSelected = true;
-					qTask.execute(params).then(getResults).otherwise(promiseRejected);
+					qTask.execute(params).then(getResults).then(function(){dquery(".loader").style("display", "none");}).otherwise(promiseRejected);
 
 				});
 			};
@@ -1041,13 +1098,7 @@ require([
 				}
 			};
 
-			function formatTime(value, key, data){
-				var time = data.TIME_;
-				time = "000" + time;
-				time = time.substr(time.length - 4);
-				// return time.substr(0, 2) + ":" + time.substr(2);
-				return "time";
-			};
+
 
 			// tribeLayer.on("mouse-over", function(evt){
 			// 	//go to selection
@@ -1080,6 +1131,33 @@ require([
 					});
 				});
 
+				if(crsLayer.visible) {
+					this.whenLayerView(crsLayer).then(function(lyrView){
+						var point = e.mapPoint;
+						var query = new Query();
+						var searchPixel = 10;
+						var pixelWidth = view.extent.width / view.width;
+						var distance = searchPixel * pixelWidth;
+						query.geometry = new Extent({
+							xmin: point.x - distance,
+							ymin: point.y - distance,
+							xmax: point.x + distance,
+							ymax: point.y + distance,
+							spatialReference: view.spatialReference
+						});
+						query.spatialRelationship = "intersects";
+						query.spatialReference = view.spatialReference;
+						lyrView.queryFeatures(query).then(function(results){
+							if(results.length) {
+								view.popup.open({
+									features: results,
+									updateLocationEnabled: true
+								});
+							};
+						});
+					});	
+				}
+
 				var resultsLyr = map.findLayerById("resultsLyr");
 				if(resultsLyr) {
 					this.whenLayerView(resultsLyr).then(function(lyrView){
@@ -1107,6 +1185,8 @@ require([
 						});
 					});
 				}
+
+				
 
 			});
 
@@ -1190,6 +1270,18 @@ require([
 
 			}
 
+			function getFirstIndex(item) {
+				var index = -1;
+				for (var i=0; i<item.length; i++) {
+					if (item[i] > 0) {
+						index = i
+						break;
+					}
+
+				}
+				return index;
+			}
+
 			function groupDate(array){
 				var yearGroup = {2004: 0, 2005: 0, 2006: 0, 2007: 0, 2008: 0, 2009: 0, 
 					2010: 0, 2011: 0, 2012: 0, 2013: 0, 2014: 0, 2015: 0};
@@ -1214,13 +1306,15 @@ require([
 				for(key in monthGroup) {
 					monthArray.push(monthGroup[key]);
 				};
-				var first = yearArray.findIndex(function (val) {
-  					return val>0;
-				});
+				// var first = yearArray.findIndex(function (val) {
+  		// 			return val>0;
+				// });
+				var first = getFirstIndex(yearArray);
 				yearArray.reverse();
-				var last = yearArray.findIndex(function (val) {
-  					return val>0;
-				});
+				// var last = yearArray.findIndex(function (val) {
+  		// 			return val>0;
+				// });
+				var last = getFirstIndex(yearArray);
 				last = yearArray.length - last;
 				yearArray.reverse();
 				return [yearArray.slice(first, last), monthArray, yearText.slice(first, last)];
@@ -1346,13 +1440,15 @@ require([
 					typeArray.push(key);
 				};
 
-				var first = ageArray.findIndex(function (val) {
-  					return val>0;
-				});
+				// var first = ageArray.findIndex(function (val) {
+  		// 			return val>0;
+				// });
+				var first = getFirstIndex(ageArray);
 				ageArray.reverse();
-				var last = ageArray.findIndex(function (val) {
-  					return val>0;
-				});
+				// var last = ageArray.findIndex(function (val) {
+  		// 			return val>0;
+				// });
+				var last = getFirstIndex(ageArray);
 				last = ageArray.length - last;
 				ageArray.reverse();
 				return [typeArray.slice(first, last), ageArray.slice(first, last)]
@@ -1381,9 +1477,9 @@ require([
 			});
 
 			on(dom.byId("doBtn"), "click", function(){
-				// dquery(".loader").style("display", "flex");
-				doQuery();
-				// dquery(".loader").style("display", "none");
+				dquery(".loader").style("display", "flex");
+				doQuery()
+				// 
 			});
 
 			on(dom.byId("clearBtn"), "click", resetView);
@@ -1442,29 +1538,29 @@ require([
     			// 
     		});
 
-    		on(dom.byId("printMap"), "click", function(){
-    			var printTask = new PrintTask({
-    				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
-				});
-				var template = new PrintTemplate({
-						format: "pdf",
-					 	exportOptions: { 
-					   		dpi: 300 
-					 	},
-					 	layout: "a4-portrait",
-					 	layoutOptions: {
-					   		titleText: "Warren Wilson College Trees", 
-					   	authorText: "Sam"
-					 	}
-					});
+    // 		on(dom.byId("printMap"), "click", function(){
+    // 			var printTask = new PrintTask({
+    // 				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				// });
+				// var template = new PrintTemplate({
+				// 		format: "pdf",
+				// 	 	exportOptions: { 
+				// 	   		dpi: 300 
+				// 	 	},
+				// 	 	layout: "a4-portrait",
+				// 	 	layoutOptions: {
+				// 	   		titleText: "Warren Wilson College Trees", 
+				// 	   	authorText: "Sam"
+				// 	 	}
+				// 	});
 					  
-				var params = new PrintParameters({
-					view: view,
-					template: template
-					});
+				// var params = new PrintParameters({
+				// 	view: view,
+				// 	template: template
+				// 	});
 					    
-					printTask.execute(params);
-    		});
+				// 	printTask.execute(params);
+    // 		});
 
     		on(dom.byId("injuryReport"), "click", function(){
     			if (doquery){
@@ -1552,7 +1648,7 @@ require([
     				ageChart.xAxis[0].setCategories(ageData[0]);
     				for(var i=0; i<d[0].length; i++) {
     					var pct = d[1][i] * 100 / total;
-    					var label = d[0][i] + ": " + pct.toFixed(2) + "%";
+    					var label = d[0][i] + ": " + d[1][i] + " (" + pct.toFixed(2) + "%)";
     					gdata.push([label, d[1][i]]);
     				};
     				genderChart.series[0].update({data: gdata});
@@ -1658,6 +1754,14 @@ require([
     				tribeLayer.visible = false;
     			}
     		}, true);
+
+    		registry.byId("crs").on("change", function(isChecked){
+    			if(isChecked){
+    				crsLayer.visible = true;
+    			} else {
+    				crsLayer.visible = false;
+    			}
+    		})
 
     		Highcharts.setOptions({
     			colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",

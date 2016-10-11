@@ -87,7 +87,7 @@
 			  	</div>
 			<!-- </div>         -->
           <li><div id = "searchDiv"></div></li> 
-          <li id = "printMap"><a href = "#">Print</a></li>
+          <!-- <li id = "printMap"><a href = "#">Print</a></li> -->
     			<li class = "dropdownHover">
     				<a href ="#" class="dropbtnHover" title="Change basemap layer">Basemap</a>
     				<div class = "dropdnHover-content" id = "dropdnBasemap">
@@ -107,6 +107,22 @@
         <a href = "#layers" class = "dropbtnHover" title = "Map layers">Layers</a>
         <div class = "dropdnHover-content">
             <div id = "tribeLayer"><label for="tribe">Tribe Area</label></div>
+            <div id = "crsBox">
+              <div id = "crsLayer"><label for="crs">CRS Road</label></div>
+              <div id = "crsSymbol">
+              Style:
+              <a href='#' class = 'collisionSymbol' style = 'background-color: #ffad99; border-color: #ff0000'></a>
+              <span class = 'symbolText'>1 - Fatal</span><br>
+              <a href='#' class = 'collisionSymbol' style = 'background-color: #ffff64; border-color: #ff9900; left: 42px;'></a>
+              <span class = 'symbolText' style = 'left: 42px'>2 - Injury (Severe)</span><br>
+              <a href='#' class = 'collisionSymbol' style = 'background-color: #d6f5d6; border-color: #33cc33; left: 42px;'></a>
+              <span class = 'symbolText' style = 'left: 42px'>3 - Injury (Other Visible)</span><br>
+              <a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #0099e6; left: 42px;'></a>
+              <span class = 'symbolText' style = 'left: 42px'>4 - Injury </span>
+              </div>
+            </div>
+
+
         </div>
       </li>
 			<li class = "dropdownHover">
@@ -133,7 +149,7 @@
         </div>
       </li>
 			<li class = "dropdownHover">
-        <a href = "#report" class = "dropbtnHover" title="Create reporting charts">Reporting</a>
+        <a href = "#report" class = "dropbtnHover" title="Create reporting charts for mapped collisions">Reporting</a>
         <div class = "dropdnHover-content">
           <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
           <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
