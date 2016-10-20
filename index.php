@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-	<title>Trabal TIMS</title>
+	<title>Tribal TIMS</title>
       <!-- Calcite Bootstrap -->
   <!-- <link rel="stylesheet" href="//esri.github.io/calcite-bootstrap/assets/css/calcite-bootstrap-open.min.css"> -->
 <!--   <link rel="stylesheet" href="//esri.github.io/calcite-maps/dist/vendor/dojo-bootstrap/assets/datepicker.css"> -->
@@ -78,6 +78,10 @@
                     </div>
                     <label for="bufferBond">Show Buffer</label>
                     <br>
+                    <div id="crsRoadBox" class = "checkbox">
+                    </div>
+                    <label for="crsRoad">Show CRS Road</label>
+                    <br>
                     <br>
                     <button id="doBtn" class = "actionBtn">Apply</button>
 			    	<button id="clearBtn" class = "actionBtn">Clear Search</button>
@@ -107,20 +111,28 @@
         <a href = "#layers" class = "dropbtnHover" title = "Map layers">Layers</a>
         <div class = "dropdnHover-content">
             <div id = "tribeLayer"><label for="tribe">Tribe Area</label></div>
-            <div id = "crsBox">
-              <div id = "crsLayer"><label for="crs">CRS Road</label></div>
-              <div id = "crsSymbol">
+<!--             <div id = "crsBox">
+              <div id = "crsLayer"><label for="crs">California Road System (CRS)</label></div>
+              <div class = "legend">
               Style:
-              <a href='#' class = 'collisionSymbol' style = 'background-color: #ffad99; border-color: #ff0000'></a>
-              <span class = 'symbolText'>1 - Fatal</span><br>
-              <a href='#' class = 'collisionSymbol' style = 'background-color: #ffff64; border-color: #ff9900; left: 42px;'></a>
-              <span class = 'symbolText' style = 'left: 42px'>2 - Injury (Severe)</span><br>
-              <a href='#' class = 'collisionSymbol' style = 'background-color: #d6f5d6; border-color: #33cc33; left: 42px;'></a>
-              <span class = 'symbolText' style = 'left: 42px'>3 - Injury (Other Visible)</span><br>
-              <a href='#' class = 'collisionSymbol' style = 'background-color: #cceeff; border-color: #0099e6; left: 42px;'></a>
-              <span class = 'symbolText' style = 'left: 42px'>4 - Injury </span>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #3399ff;'></a>
+              <span class = 'symbolText'>1 - Interstate</span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #993300; left: 47px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>2 - Other Freeway</span><br>
+              <span class = 'symbolText' style = 'left: 83px'>or Expressway</span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #ff3300; left: 47px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>3 - Other Principal </span><br>
+              <span class = 'symbolText' style = 'left: 83px'>Arterial</span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #33cc33; left: 47px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>4 - Minor Arterial </span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #ff80ff; left: 47px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>5 - Major Collector </span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #ffa64d; left: 47px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>6 - Minor Collector </span><br>
+              <a href='#' class = 'crsSymbol' style = 'background-color: #999999; left: 47px; height: 2px;'></a>
+              <span class = 'symbolText' style = 'left: 47px'>7 - Local </span>
               </div>
-            </div>
+            </div> -->
 
 
         </div>
@@ -141,7 +153,7 @@
             </select>
             <br>
             <br>
-            <div id="setSymbol">
+            <div id="setSymbol" class = "legend" style = "padding: 0;">
               Color:
               <a href="#" class = "collisionSymbol"></a><span class = "symbolText">Collision</span>
             </div>
@@ -151,12 +163,17 @@
 			<li class = "dropdownHover">
         <a href = "#report" class = "dropbtnHover" title="Create reporting charts for mapped collisions">Reporting</a>
         <div class = "dropdnHover-content">
-          <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
-          <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
-          <div title = "Create victim summary reports" id = "victimReport">Killed/Injured Victim Summary</div>
+            <div title = "Create crash variable reports" id = "crashReport">Crash Variables</div>
+            <div title = "Create injurt trend reports" id = "injuryReport">Injury Trend</div>
+            <div title = "Create victim summary reports" id = "victimReport">Killed/Injured Victim Summary</div>
         </div>
-      </li>
-      <li id = "title">Tribal TIMS</li>
+        </li>
+        <li class = "dropdownHover" id = "refreshTool"><a href = "#" class = "dropbtnHover" title="Refresh collision mapping results">Refresh</a>
+            <div class = "dropdnHover-content">
+                <div id = "refresh" title="Show collisions in current map extent">Refresh Current Extent</div>
+            </div>
+        </li>
+        <li id = "title">Tribal TIMS</li>
 
 			<li class = "icon">
 				<a href="javascript:void(0);" onclick="myFunction()">&#9776;</a>
@@ -178,7 +195,7 @@
 		<!-- <span aria-hidden="true" id = "infoIcon" title="Display tribe info window">i</span> -->
 
         <div id = "info">
-            <h4 id="printResults">Please select tribe!</h4>
+            <p id="printResults">Please select tribe!</p>
             <button class = "panelHeading" id = "tribeToggle" title = "Display tribal summary info">Tribal Summary</button>
             <span id = "noTribeText"></span>
             <br>

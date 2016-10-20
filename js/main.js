@@ -62,6 +62,9 @@ require([
   		"esri/widgets/Search",
   		"esri/renderers/UniqueValueRenderer",
   		"esri/widgets/Locate",
+  		"esri/symbols/SimpleLineSymbol",
+  		"esri/geometry/Polygon",
+  		"esri/geometry/geometryEngine",
 		"dojo/domReady!"	
 		],
 		function(Map, MapView, FeatureLayer, QueryTask, Query, arrayUtils, 
@@ -69,7 +72,7 @@ require([
 			SpatialReference, SimpleRenderer, SimpleFillSymbol, watchUtils, dquery, 
 			Home, geometryEngine, mouse, PopupTemplate, fx, style, registry, CheckBox, 
 			domStyle, Extent, PrintTask, PrintTemplate, PrintParameters, Dialog, Legend, 
-			Search, UniqueValueRenderer, Locate
+			Search, UniqueValueRenderer, Locate, SimpleLineSymbol, Polygon,geometryEngine
 			){
 			var tribeName = dom.byId("tribename");
 			var buffer = dom.byId("buffer");
@@ -88,6 +91,25 @@ require([
 			var heightInjur = 0;
 
 			var doquery = false;
+			var datePoints = [];
+			var crashType = [];
+			var pcfType = [];
+			var partyType = [];
+			var vicType = [];
+			var genderType = [];
+			var ageType = [];
+			var sevType = [];
+			var dowType = [];
+			var vinjuryType = [];
+			var vseatType = [];
+			var vsafeType = [];
+			var vejectType = [];
+			var pType = [];
+			var psoberType = [];
+			var pdrugType = [];
+			var caseid = [];
+			var mapObjectIDs = [];
+			var curGeometry;
 
 			// var resultsLyr = new GraphicsLayer();
 			// var resultsLyr = new FeatureLayer();
@@ -163,15 +185,20 @@ require([
 				checked: true
 			});
 
+			// var box4 = new CheckBox({
+			// 	id: "crs",
+			// 	checked: false
+			// })
 			var box4 = new CheckBox({
-				id: "crs",
+				id: "crsRoad",
 				checked: false
 			})
 
 			box1.placeAt("boundryBox", "first");
 			box2.placeAt("bufferBox", "first");
 			box3.placeAt("tribeLayer", "first");
-			box4.placeAt("crsLayer", "first");
+			// box4.placeAt("crsLayer", "first");
+			box4.placeAt("crsRoadBox", "first");
 
 			// var toggle = new BasemapToggle({
 			// 	view: view,
@@ -250,6 +277,103 @@ require([
 			var polygonRenderer = new SimpleRenderer({
 				symbol: polygonSymbol
   			});
+
+  			var line = {
+				color: [115, 115, 115, 0.6],
+				width: 1,
+				style: "solid"  				
+  			}
+
+			var lineSymbol = new SimpleLineSymbol(line);
+						// 	if (feature.attributes.FC_DRAFT == 7) {
+						// 		feature.symbol.color = [115, 115, 115, 0.6];
+						// 		feature.symbol.width = 1;
+						// 	} else if (feature.attributes.FC_DRAFT == 6){
+						// 		feature.symbol.color = [255, 153, 51, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	} else if (feature.attributes.FC_DRAFT == 5){
+						// 		feature.symbol.color = [255, 128, 255, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	} else if (feature.attributes.FC_DRAFT == 4){
+						// 		feature.symbol.color = [0, 153, 51, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	} else if (feature.attributes.FC_DRAFT == 3){
+						// 		feature.symbol.color = [255, 71, 26, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	} else if (feature.attributes.FC_DRAFT == 2){
+						// 		feature.symbol.color = [204, 102, 0, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	} else if (feature.attributes.FC_DRAFT == 1){
+						// 		feature.symbol.color = [0, 107, 179, 0.6];
+						// 		feature.symbol.width = 2;
+						// 	}
+			var lineSymbol1 = new SimpleLineSymbol(line);
+			lineSymbol1.color = [0, 107, 179, 0.6];
+			lineSymbol1.width = 2;
+
+			var lineSymbol2 = new SimpleLineSymbol(line);
+			lineSymbol2.color = [204, 102, 0, 0.6];
+			lineSymbol2.width = 2;
+
+			var lineSymbol3 = new SimpleLineSymbol(line);
+			lineSymbol3.color = [255, 71, 26, 0.6];
+			lineSymbol3.width = 2;
+
+			var lineSymbol4 = new SimpleLineSymbol(line);
+			lineSymbol4.color = [0, 153, 51, 0.6];
+			lineSymbol4.width = 2;
+
+			var lineSymbol5 = new SimpleLineSymbol(line);
+			lineSymbol5.color = [255, 128, 255, 0.6];
+			lineSymbol5.width = 2;
+
+			var lineSymbol6 = new SimpleLineSymbol(line);
+			lineSymbol6.color = [255, 153, 51, 0.6];
+			lineSymbol6.width = 2;
+
+			var lineRenderer = new UniqueValueRenderer({
+				defaultSymbol: lineSymbol,
+				defaultLabel: "7 - LOCAL",
+				field: "FC_DRAFT",
+				uniqueValueInfos: [
+					{
+						value: "1",
+						symbol: lineSymbol1,
+						label: "1 - INTERSTATE"
+					}, 
+					{
+						value: "2",
+						symbol: lineSymbol2,
+						label: "2 - OTHER FWY OR EXPWY"
+					}, 
+					{
+						value: "3",
+						symbol: lineSymbol3,
+						label: "3 - OTHER PRINCIPAL ARTERIAL"
+					}, 
+					{
+						value: "4",
+						symbol: lineSymbol4,
+						label: "4 - MINOR ARTERIAL"
+					}, 
+					{
+						value: "5",
+						symbol: lineSymbol5,
+						label: "5 - MAJOR COLLECTOR"
+					}, 
+					{
+						value: "6",
+						symbol: lineSymbol6,
+						label: "6 - MINOR COLLECTOR"
+					}, 
+					{
+						value: "7",
+						symbol: lineSymbol,
+						label: "7 - LOCAL"
+					}
+				]
+  			});
+
 
   			function generateRenderer(){
 
@@ -467,7 +591,8 @@ require([
       		});
 
 			var switrsLayer = new FeatureLayer({
-				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				// url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				url: "http://services2.arcgis.com/iq8zYa0SRsvIFFKz/arcgis/rest/services/SWITRS/FeatureServer/0"
 			});
 
 			var tribeLayer = new FeatureLayer({
@@ -484,8 +609,8 @@ require([
 			});
 
 			map.add(tribeLayer);
-			map.add(crsLayer);
-			crsLayer.visible = false;
+			// map.add(crsLayer);
+			// crsLayer.visible = false;
 			// map.add(resultsLyr);
 			//map.add(switrsLayer);
 			// var legend = new Legend({
@@ -500,8 +625,13 @@ require([
 			// view.ui.add(legend, "bottom-right");
 
 			var qTask = new QueryTask({
-				url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				// url: "http://services2.arcgis.com/Sc1y6FClT0CxoM9q/ArcGIS/rest/services/California_AGOL_20160901/FeatureServer/0"
+				url: "http://services2.arcgis.com/iq8zYa0SRsvIFFKz/arcgis/rest/services/SWITRS/FeatureServer/0"
 			});
+
+			var qTaskCRS = new QueryTask({
+				url: "http://services2.arcgis.com/iq8zYa0SRsvIFFKz/arcgis/rest/services/CRS_Tribal_upload/FeatureServer/0"
+			})
 
 			var params = new Query ({
 				returnGeometry: true,
@@ -509,6 +639,14 @@ require([
 				outSpatialReference: SpatialReference(102100)
 			});
 
+			var paramCRS = new Query ({
+				returnGeometry: true,
+				outFields: ["*"],
+				outSpatialReference: SpatialReference(102100)
+			})
+
+			var queryTotal = 0;
+			var objectIDs = [];
 			// var filters = {
 			// 	"date":{
 			// 		"startDate": query("#startDate").val(),
@@ -525,11 +663,16 @@ require([
 			var reportingCrash = new Dialog({
 				title: "Crash Variable Report",
 				content: "<p id='crashTitle' class = 'chartTitle'>Please apply query first!</p> <hr>" + 
-				"<div id = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
-				"<option value = 0>Collision Variable</option><option value = 1>PCF Variable</option>" + 
-				"<option value = 2>Party Variable</option><option value = 3>Victim Variable</option>" + 
-				// "<option value = 4>CA Variable</option>" +
-				"</select></div><div id = 'crashChart'></div>",
+				"<div class = 'crashVari'><label for = 'variable'>Select Variable Type</label><br><select id = 'variable'>" + 
+				"<option value = 0>Collision Variable</option><option value = 1>Party Variable</option>" + 
+				"<option value = 2>Victim Variable</option>" + 
+				"</select></div>" +
+				"<div class = 'crashVari'>" + 
+				"<label for = 'subvariable'>Select Subtype</label><br><select id = 'subvariable'>" + 
+				"<option value = 0>Type of Collison</option><option value = 1>Collision Severity</option>" + 
+				"<option value = 2>Day of Week</option><option value = 3>Motor Vehicle Involved With</option>" + 
+				"<option value = 4>PCF Violation Category</option></select></div>" + 
+				"<div id = 'crashChart'></div>",
 				style: "width: 650px"
 			});
 
@@ -601,24 +744,6 @@ require([
 					view.goTo(highlGraphic.geometry.extent.expand(1.5));
 
 					showInfoText(featureSet.features[0]);
-					// var area = featureSet.features[0].attributes.Area_sq_mi;
-					// var road = featureSet.features[0].attributes.Road_mileage_total;
-					// // dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
-					// // dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
-					// // dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					// // dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.AGENCY;
-					// dom.byId("printResults").innerHTML = featureSet.features[0].attributes.NAME;
-					// dom.byId("tribePop").innerHTML = featureSet.features[0].attributes.Population;
-					// dom.byId("tribeCounty").innerHTML = featureSet.features[0].attributes.COUNTY;
-					// dom.byId("tribeArea").innerHTML = area.toFixed(2);
-					// dom.byId("tribeTrans").innerHTML = featureSet.features[0].attributes.Trans_Agency;
-					// dom.byId("tribeRoad").innerHTML = parseFloat(road).toFixed(2);
-					// dom.byId("tribePolice").innerHTML = featureSet.features[0].attributes.Tribal_Police;
-					// dom.byId("tribeCourt").innerHTML = featureSet.features[0].attributes.Tribal_Court;
-					// dom.byId("tribeFire").innerHTML = featureSet.features[0].attributes.Tribal_Fire_Department;
-					// dom.byId("tribeEms").innerHTML = featureSet.features[0].attributes.Tribal_EMS;
-					// dom.byId("tribeCasino").innerHTML = featureSet.features[0].attributes.Casino;
-					// dom.byId("tribeInfra").innerHTML = featureSet.features[0].attributes.Roadway_Data;
 					dquery(".loader").style("display", "none");
 				});
 				//lastSelect = tribeName;
@@ -631,15 +756,15 @@ require([
 
 			function doQuery(){
 				// view.graphics.remove(highlGraphic);
-
-				view.graphics.removeAll();
-				// resultsLyr.removeAll();
-				var resultsLyr = map.findLayerById("resultsLyr");
-				if(resultsLyr) {
-					map.remove(resultsLyr);
-				}
-				tribeLyr.removeAll();
-				buffferLyr.removeAll();
+				params.objectIds = [];
+				// view.graphics.removeAll();
+				// var resultsLyr = map.findLayerById("resultsLyr");
+				// if(resultsLyr) {
+				// 	map.remove(resultsLyr);
+				// }
+				// tribeLyr.removeAll();
+				// buffferLyr.removeAll();
+				resetView();
 				var query = new Query({
 					returnGeometry: true,
 					outFields: ["*"],
@@ -685,6 +810,8 @@ require([
 						params.geometry = geometry;
 					};
 					// resultsLyr.add(tribeGraphic);
+					paramCRS.geometry = params.geometry;
+					curGeometry = params.geometry
 					tribeLyr.add(tribeGraphic);
 					if(!registry.byId("tribeBond").get("checked")){
 						// tribeGraphic.symbol.outline.width = 0;
@@ -694,6 +821,31 @@ require([
 					view.goTo(params.geometry.extent.expand(1.5));
 					// view.extent = geometry.extent.expand(2.5);
 					params.spatialRelationship = "intersects";
+					paramCRS.spatialRelationship = "contains";
+
+					qTaskCRS.execute(paramCRS).then(function(featureSet){
+						var option = {
+							id: "crsLyr",
+							fields: featureSet.fields,
+							source: featureSet.features,
+							objectIdField: "OBJECTID",
+							geometryType: "polyline",
+							spatialReference: featureSet.spatialReference,
+							renderer: lineRenderer,
+							popupTemplate: crsPopupTem
+						};
+						// gloabl variable
+						crsLyr = new FeatureLayer(option);
+						map.add(crsLyr);					
+						if(registry.byId("crsRoad").get("checked")){
+							// tribeGraphic.symbol.outline.width = 0;
+							crsLyr.visible = true;
+						} else {
+							crsLyr.visible = false;
+						};
+
+					})
+
 					var startDate = dateToYMD(dom.byId("startDate").value);
 					var endDate = dateToYMD(dom.byId("endDate").value);
 					params.where = "DATE_ >= '" + startDate + "' AND DATE_ <= '" + endDate + "'";
@@ -707,23 +859,36 @@ require([
 					showInfoText(featureSet.features[0]);
 					reportTribe = featureSet.features[0].attributes.NAME;
 					tribeSelected = true;
-					qTask.execute(params).then(getResults).then(function(){dquery(".loader").style("display", "none");}).otherwise(promiseRejected);
+					qTask.executeForIds(params).then(function(results){
+						queryTotal = results.length;
+						objectIDs = results;
+						// qTask.execute(params).then(getResults).then(function(){dquery(".loader").style("display", "none");}).otherwise(promiseRejected);
+						qTask.execute(params).then(getResults).otherwise(promiseRejected);
+					});
 
 				});
 			};
 
-			var datePoints = [];
-			var crashType = [];
-			var pcfType = [];
-			var partyType = [];
-			var vicType = [];
-			var genderType = [];
-			var ageType = [];
+
 			function getResults(response){
 				datePoints = [];
 				crashType = [];
 				pcfType = [];
 				partyType = [];
+				vicType = [];
+				genderType = [];
+				ageType = [];
+				sevType = [];
+				dowType = [];
+				vinjuryType = [];
+				vseatType = [];
+				vsafeType = [];
+				vejectType = [];
+				pType = [];
+				psoberType = [];
+				pdrugType = [];
+				caseid = [];
+				mapObjectIDs = [];
 				var fatalVitm = 0;
 				var severeVitm = 0;
 				var injurVitm = 0;
@@ -747,89 +912,32 @@ require([
 				map.add(resultsLyr);
 				// resultsLyr = FeatureLayer(option);
 
-				var caseid = [];
 
-				arrayUtils.map(response.features, function(feature){
-					// feature.symbol = new SimpleMarkerSymbol({
-					// 	color: [255, 100, 0, 0.3],
-					// 	size: 8,
-					// 	outline: {
-					// 		color: [255, 50, 0, 0.6],
-					// 		width: 1.5
-					// 	}
-					// });
-					// feature.popupTemplate = poptemplate;
-					fatalVitm += feature.attributes.KILLED;
-					injurVitm += feature.attributes.INJURED;
-					severeVitm += feature.attributes.SEVINJ;
-					// if (feature.attributes.CRASHSEV == 1 || feature.attributes.CRASHSEV == 2){
-					caseid.push(feature.attributes.CASEID);
-					// }
-					datePoints.push(feature.attributes.DATE_);
-					crashType.push(feature.attributes.CRASHTYP);
-					pcfType.push(feature.attributes.VIOLCAT);
-					partyType.push(feature.attributes.INVOLVE);
-				});
+				var length = response.features.length;
+				pushFeatureAttr(response.features);
 
-				dom.byId("printResults").innerHTML += ": " + response.features.length + " collisions found";
-				dom.byId("fatalities").innerHTML = fatalVitm;
-				dom.byId("severe").innerHTML = severeVitm;
-				dom.byId("totalVictim").innerHTML = injurVitm + fatalVitm;
-
-				if (caseid.length) {
-					// query vistim
-					// console.log(sqlwhere);
-					$.ajax({
-						url: "query.php",
-						type: "POST",
-						dataType: "text",
-						data: {"caseid": caseid}
-					}).done(function(data){
-						var result = data.split(".");
-						var victim = result[0].split(",");
-						vicType = result[1].split(",");
-						ageType = result[2].split(",");
-						genderType = result[3].split(",");
-						// console.log(result[4]);
-						dom.byId("pedVictim").innerHTML = victim[0];
-						dom.byId("bikeVictim").innerHTML = victim[1];
-						dom.byId("motorVictim").innerHTML = victim[2];
-						dom.byId("impairedVictim").innerHTML = victim[3];
-						displayInfo();
-						// for (i in data) console.log(data[i]);
-						// console.log(data.length);
-					});
+				if (length == queryTotal) {
+					dom.byId("printResults").innerHTML += ": " + length + " collisions found";
+					querymySQL(caseid);
 				} else {
-					dom.byId("pedVictim").innerHTML = 0;
-					dom.byId("bikeVictim").innerHTML = 0;
-					dom.byId("motorVictim").innerHTML = 0;
-					dom.byId("impairedVictim").innerHTML = 0;
-					displayInfo(); 		
+					dquery("#printResults").style("font-size", "13px");
+					dom.byId("printResults").innerHTML += ": " + queryTotal + " collisions found, " + length + " (" 
+					+ (parseFloat(length) * 100/queryTotal).toFixed(2) + "%) colisions mapped." + 
+					" Use the <span style='color: #003262;'>Refresh Tool</span> to zoom to areas of interest";
+					var remainID = matchID(mapObjectIDs, objectIDs);
+					params.objectIds = remainID;
+					qTask.execute(params).then(function(response){
+						pushFeatureAttr(response.features);
+						querymySQL(caseid);
+					}).then(function(){
+						dquery("#refreshTool").style("display", "block");
+					});
+					
 				}
-				
 
-
-				// view.graphics.add(switrsResults);
-
-				// resultsLyr.addMany(switrsResults);
-
-				// console.log(response.spatialReference.wkid);
-				
-				//map.add(resultsLyr);
-				//view.goTo(switrsResults);
-				//view.extent = tribeResults.fullExtent;
-				
-				// dquery("#info").style("display", "block");
-				// dquery("#victimTable").style("display", "table");
-				// heightVitm = 1;
-				// showinfoVitm = true;
-				// console.log();
 				doquery = true;
 				heightVitm = 0;
-				// displayInfo();
 
-				// showVitmInfo();		
-				// dquery(".loader").style("display", "none");
 			};
 
 			function promiseRejected(err) {
@@ -842,6 +950,10 @@ require([
 				var resultsLyr = map.findLayerById("resultsLyr");
 				if(resultsLyr) {
 					map.remove(resultsLyr);
+				}
+				var crsLyr = map.findLayerById("crsLyr");
+				if(crsLyr) {
+					map.remove(crsLyr);
 				}
 				buffferLyr.removeAll();
 				tribeLyr.removeAll();
@@ -860,9 +972,13 @@ require([
 				crashChart.setTitle({text: 'Type of Collision'});
 				genderChart.series[0].update({data: []});
 				ageChart.series[0].update({data:[]});
+				ageChart.series[1].update({data:[]});
+				ageChart.series[2].update({data:[]});
 				dom.byId("crashTitle").innerHTML = "Please apply query first!";
 				dom.byId("injuryTitle").innerHTML = "Please apply query first!";
 				dom.byId("victimTitle").innerHTML = "Please apply query first!";
+				dquery("#refreshTool").style("display", "none");
+				dquery("#printResults").style("font-size", "14px");
 
 				if(showinfo){
 					hideInfo();
@@ -876,7 +992,88 @@ require([
 				console.log(basemapid);
 			};
 
+			function matchID (array, array_all){
+				var matched = false;
+				var unmatched = [];
+				for(var i=0; i<array_all.length; i++){
+					for(var j=0; j<array.length; j++) {
+						if (array[j]==array_all[i]) {
+							matched = true;
+						}
+					}
+					if(!matched) {
+						unmatched.push(array_all[i]);
+					}
+					matched = false;
+				}
+				return unmatched;
+			};
 
+			function pushFeatureAttr(responseFeature){
+				arrayUtils.map(responseFeature, function(feature){
+					caseid.push(feature.attributes.CASEID);
+					mapObjectIDs.push(feature.attributes.OBJECTID);
+					datePoints.push(feature.attributes.DATE_);
+					crashType.push(feature.attributes.CRASHTYP);
+					pcfType.push(feature.attributes.VIOLCAT);
+					partyType.push(feature.attributes.INVOLVE);
+					sevType.push(feature.attributes.CRASHSEV);
+					dowType.push(feature.attributes.DAYWEEK);
+				});
+			};
+
+			function querymySQL(caseid) {
+				if (caseid.length) {
+					// query vistim
+					// console.log(sqlwhere);
+					$.ajax({
+						url: "query.php",
+						type: "POST",
+						dataType: "text",
+						data: {"caseid": JSON.stringify(caseid)}
+					}).done(function(data){
+						var result = data.split(".");
+						var victim = result[0].split(",");
+						vicType = result[1].split(",");
+						ageType = result[2].split(",");
+						genderType = result[3].split(",");
+						vinjuryType = result[4].split(",");
+						vseatType = result[5].split(",");
+						vsafeType = result[6].split(",");
+						vejectType = result[7].split(",");
+						// console.log(result[4]);
+						dom.byId("pedVictim").innerHTML = victim[0];
+						dom.byId("bikeVictim").innerHTML = victim[1];
+						dom.byId("motorVictim").innerHTML = victim[2];
+						dom.byId("impairedVictim").innerHTML = victim[3];
+
+						dom.byId("fatalities").innerHTML = victim[5];
+						dom.byId("severe").innerHTML = victim[6];
+						dom.byId("totalVictim").innerHTML = victim[4];
+						displayInfo();
+						// for (i in data) console.log(data[i]);
+						// console.log(data.length);
+					});
+					$.ajax({
+						url: "party.php",
+						type: "POST",
+						dataType: "text",
+						data: {"caseid": caseid}
+					}).done(function(data){
+						var result = data.split(".");
+						pType = result[0].split(",");
+						psoberType = result[1].split(",");
+						pdrugType = result[2].split(",");
+					});
+
+				} else {
+					dom.byId("pedVictim").innerHTML = 0;
+					dom.byId("bikeVictim").innerHTML = 0;
+					dom.byId("motorVictim").innerHTML = 0;
+					dom.byId("impairedVictim").innerHTML = 0;
+					displayInfo(); 		
+				}
+			}
 
 			function displayInfo(){
 				// dquery("#infoPanel").style("display", "block");
@@ -908,6 +1105,7 @@ require([
 					hideInjurInfo();
 				}
 				showinfo = true;
+				dquery(".loader").style("display", "none");
 			};
 
 			function hideInfo(){
@@ -1025,7 +1223,7 @@ require([
 					dom.byId("noVictimText").innerHTML = "&nbsp&nbspPlease apply query!";
 				}
 				showinfoVitm = true;		
-				dquery("#victimToggle")[0].title = "Hide victim info";	
+				dquery("#victimToggle")[0].title = "Hide victim info";
 			}
 
 			function hideVitmInfo(){
@@ -1131,8 +1329,9 @@ require([
 					});
 				});
 
-				if(crsLayer.visible) {
-					this.whenLayerView(crsLayer).then(function(lyrView){
+				var crsLyr = map.findLayerById("crsLyr");
+				if(crsLyr.visible) {
+					this.whenLayerView(crsLyr).then(function(lyrView){
 						var point = e.mapPoint;
 						var query = new Query();
 						var searchPixel = 10;
@@ -1159,6 +1358,7 @@ require([
 				}
 
 				var resultsLyr = map.findLayerById("resultsLyr");
+
 				if(resultsLyr) {
 					this.whenLayerView(resultsLyr).then(function(lyrView){
 						var point = e.mapPoint;
@@ -1382,7 +1582,8 @@ require([
 						'3': 'Pedestrian',
 						'4': 'Bicyclist',
 						'5': 'Other (single victim on/in non-motor vehicle)',
-						'6': 'Non-Injured Party'
+						'6': 'Non-Injured Party',
+						'-': 'Not Stated'
 					};
 				} else if (type == 4) {
 					typeDict = {
@@ -1390,23 +1591,153 @@ require([
 						'F': 'Female',
 						'-':  'Not Stated'
 					};
-				};
+				} else if (type == 5) {
+					typeDict = {
+						'1': 'Fatal',
+						'2': 'Injury (Severe)',
+						'3': 'Injury (Other Visible)',
+						'4': 'Injury (Complaint of Pain)',
+						'-': 'Not Stated'
+					}
+				} else if (type == 6) {
+					typeDict = {
+						'1': 'Monday',
+						'2': 'Tuesday',
+						'3': 'Wednesday',
+						'4': 'Thursday',
+						'5': 'Friday',
+						'6': 'Saturday',
+						'7': 'Sunday',
+						'-': 'Not Stated'
+					}
+				} else if (type == 7) {
+					typeDict = {
+						'1': 'Killed',
+						'2': 'Severe Injury',
+						'3': 'Other Visible Injury',
+						'4': 'Complaint of Pain',
+						'0': 'No Injury',
+						'-': 'Not Stated'
+					}
+				} else if (type == 8) {
+					typeDict = {
+						'1': 'Driver',
+						'2': 'Passengers',
+						'7': 'Station Wagon Rear',
+						'8': 'Rear Occupant of Truck or Van',
+						'9': 'Position Unknown',
+						'0': 'Other Occupants',
+						'A': 'Bus Occupants',
+						'-':  'Not Stated'
+					}
+				} else if (type == 9) {
+					typeDict = {
+						'A': 'None in Vehicle',
+						'B': 'Unknown',
+						'C': 'Lap Belt Used',
+						'D': 'Lap Belt Not Used',
+						'E': 'Shoulder Harness Used',
+						'F': 'Shoulder Harness Not Used',
+						'G': 'Lap or Shoulder Harness Used',
+						'H': 'Lap or Shoulder Harness Not Used',
+						'J': 'Passive Restraint Used',
+						'K': 'Passive Restraint Not Used',
+						'L': 'Air Bag Deployed',
+						'M': 'Air Bag Not Deployed',
+						'N': 'Other',
+						'P': 'Not Required',
+						'Q': 'Child Restraint in Vehicle Used',
+						'R': 'Child Restraint in Vehicle Not Used',
+						'S': 'Child Restraint in Vehicle, Use Unknown',
+						'T': 'Child Restraint in Vehicle, Improper Use',
+						'U': 'No Child Restraint in Vehicle',
+						'V': 'Driver, Motorcycle Helmet Not Used',
+						'W': 'Driver, Motorcycle Helmet Used',
+						'X': 'Passenger, Motorcycle Helmet Not Used',
+						'Y': 'Passenger, Motorcycle Helmet Used',
+						'-': 'Not Stated'
+					}
+				} else if (type == 10) {
+					typeDict = {
+						'0': 'Not Ejected',
+						'1': 'Fully Ejected',
+						'2': 'Partially Ejected',
+						'3': 'Unknown',
+						'-':  'Not Stated'
+					}
+				} else if (type == 11) {
+					typeDict = {
+						'1': 'Driver (including Hit and Run)',
+						'2': 'Pedestrian',
+						'3': 'Parked Vehicle',
+						'4': 'Bicyclist',
+						'5': 'Other',
+						'-': 'Not Stated'
+					}
+				} else if (type == 12) {
+					typeDict = {
+						'A': 'Had Not Been Drinking',
+						'B': 'Had Been Drinking, Under Influence',
+						'C': 'Had Been Drinking, Not Under Influence',
+						'D': 'Had Been Drinking, Impairment Unknown',
+						'G': 'Impairment Unknown',
+						'H': 'Not Applicable',
+						'-': 'Not Stated'
+					}
+				} else if (type ==  13) {
+					typeDict = {
+						'E': 'Under Drug Influence',
+						'F': 'Impairment - Physical',
+						'G': 'Impairment Unknown',
+						'H': 'Not Applicable',
+						'I': 'Sleepy or Fatigued',
+						'-': 'Not Stated'
+					}
+				}
 
 				for(i=0; i<array.length; i++) {
-					type = array[i];
-					if (crashGroup[type]) {
-						crashGroup[type] += 1;
+					var ctype = String(array[i]);
+					if (crashGroup[ctype]) {
+						crashGroup[ctype] += 1;
 					} else {
-						crashGroup[type] = 1;
+						crashGroup[ctype] = 1;
 					};
 				};
-				for(var key in crashGroup) {
-					crashArray.push([key, crashGroup[key]]);
-				};
+
+				if (type == 8) {
+					var passengers = 0;
+					var bus = 0;
+					
+					for (var key in crashGroup) {
+						if (key == '2' || key == '3' || key == '4' || key == '5' || key == '6') {
+							// console.log(key);
+							passengers += crashGroup[key];
+						} else if (key == '1' || key == '7' || key == '8' || key == '9' || key == '0' || key == '-') {
+							crashArray.push([key, crashGroup[key]]);
+						} else {
+							bus += crashGroup[key];
+						}
+					}
+					if (passengers > 0) crashArray.push(['2', passengers]);
+					if (bus > 0) crashArray.push(['A', bus]);
+				} 
+				else {
+					for(var key in crashGroup) {
+						if (key) {
+							crashArray.push([key, crashGroup[key]]);		
+						} else {
+							if (crashArray['-']) {
+								crashArray['-'] += crashGroup[key];
+							} else {
+								crashArray.push(['-', crashGroup[key]])
+							}
+						}
+					};
+				}
+
 				crashArray.sort(function(a, b){
 					return b[1] - a[1];
 				});
-				// console.log(crashArray);
 				for(var i=0; i<crashArray.length; i++) {
 					catCrash.push(typeDict[crashArray[i][0]]);
 					sumCrash.push(crashArray[i][1]);
@@ -1415,43 +1746,84 @@ require([
 
 			};
 
-			function groupAge(array){
-				var typeDict = {'14 or younger': 0, '15 - 19': 0, '20 - 24': 0, '25 - 44': 0, '45 - 64': 0, '65 or older': 0};
-				var ageArray = [];
+			function groupAge(array, genderArray){
+				var typeDictMale = {'14 or younger': 0, '15 - 19': 0, '20 - 24': 0, '25 - 44': 0, '45 - 64': 0, '65 or older': 0};
+				var typeDictFemale = {'14 or younger': 0, '15 - 19': 0, '20 - 24': 0, '25 - 44': 0, '45 - 64': 0, '65 or older': 0};
+				var typeDictOther = {'14 or younger': 0, '15 - 19': 0, '20 - 24': 0, '25 - 44': 0, '45 - 64': 0, '65 or older': 0};
+				var genderTypeDict = {'M': 'Male', 'F': 'Female', '-':  'Not Stated'};
+				var ageArray1 = [];
+				var ageArray2 = [];
+				var ageArray3 = [];
 				var typeArray = []; 
 				for (i=0; i<array.length; i++) {
 					var age = parseInt(array[i]);
-					if(age <= 14) {
-						typeDict['14 or younger'] += 1;
-					} else if (age > 14 && age <= 19) {
-						typeDict['15 - 19'] += 1;
-					} else if (age > 19 && age <= 24) {
-						typeDict['20 - 24'] += 1;
-					} else if (age > 24 && age <= 44) {
-						typeDict['25 - 44'] += 1;
-					} else if (age > 44 && age <= 64) {
-						typeDict['45 - 64'] += 1;
-					} else if (age > 65 && age <= 130) {
-						typeDict['65 or older'] += 1;
-					};
+					if (genderArray[i] == 'M') {
+						if(age <= 14) {
+							typeDictMale['14 or younger'] += 1;
+						} else if (age > 14 && age <= 19) {
+							typeDictMale['15 - 19'] += 1;
+						} else if (age > 19 && age <= 24) {
+							typeDictMale['20 - 24'] += 1;
+						} else if (age > 24 && age <= 44) {
+							typeDictMale['25 - 44'] += 1;
+						} else if (age > 44 && age <= 64) {
+							typeDictMale['45 - 64'] += 1;
+						} else if (age > 65 && age <= 130) {
+							typeDictMale['65 or older'] += 1;
+						};
+					} else if (genderArray[i] == 'F') {
+						if(age <= 14) {
+							typeDictFemale['14 or younger'] += 1;
+						} else if (age > 14 && age <= 19) {
+							typeDictFemale['15 - 19'] += 1;
+						} else if (age > 19 && age <= 24) {
+							typeDictFemale['20 - 24'] += 1;
+						} else if (age > 24 && age <= 44) {
+							typeDictFemale['25 - 44'] += 1;
+						} else if (age > 44 && age <= 64) {
+							typeDictFemale['45 - 64'] += 1;
+						} else if (age > 65 && age <= 130) {
+							typeDictFemale['65 or older'] += 1;
+						};
+					} else {
+						if(age <= 14) {
+							typeDictOther['14 or younger'] += 1;
+						} else if (age > 14 && age <= 19) {
+							typeDictOther['15 - 19'] += 1;
+						} else if (age > 19 && age <= 24) {
+							typeDictOther['20 - 24'] += 1;
+						} else if (age > 24 && age <= 44) {
+							typeDictOther['25 - 44'] += 1;
+						} else if (age > 44 && age <= 64) {
+							typeDictOther['45 - 64'] += 1;
+						} else if (age > 65 && age <= 130) {
+							typeDictOther['65 or older'] += 1;
+						};
+					}
 				};
-				for (key in typeDict) {
-					ageArray.push(typeDict[key]);
+				for (key in typeDictMale) {
+					ageArray1.push(typeDictMale[key]);
+					ageArray2.push(typeDictFemale[key]);
+					ageArray3.push(typeDictOther[key]);
 					typeArray.push(key);
 				};
 
 				// var first = ageArray.findIndex(function (val) {
   		// 			return val>0;
 				// });
-				var first = getFirstIndex(ageArray);
-				ageArray.reverse();
+				var first = Math.min(getFirstIndex(ageArray1), getFirstIndex(ageArray2), getFirstIndex(ageArray3));
+				ageArray1.reverse();
+				ageArray2.reverse();
+				ageArray3.reverse();
 				// var last = ageArray.findIndex(function (val) {
   		// 			return val>0;
 				// });
-				var last = getFirstIndex(ageArray);
-				last = ageArray.length - last;
-				ageArray.reverse();
-				return [typeArray.slice(first, last), ageArray.slice(first, last)]
+				var last = Math.max(getFirstIndex(ageArray1), getFirstIndex(ageArray2), getFirstIndex(ageArray3));
+				last = ageArray1.length - last;
+				ageArray1.reverse();
+				ageArray2.reverse();
+				ageArray3.reverse();
+				return [typeArray.slice(first, last), ageArray1.slice(first, last), ageArray2.slice(first, last), ageArray3.slice(first, last)]
 			};
 
 			function calMovingAvg(series, period){
@@ -1643,8 +2015,11 @@ require([
     				var d = groupCrash(genderType, 4);
     				var gdata = [];
     				var total = d[1].reduce(function(a, b){return a+b;}, 0);
-    				var ageData = groupAge(ageType);
+    				var ageData = groupAge(ageType, genderType);
     				ageChart.series[0].update({data: ageData[1]});
+    				ageChart.series[1].update({data: ageData[2]});
+    				ageChart.series[2].update({data: ageData[3]});
+
     				ageChart.xAxis[0].setCategories(ageData[0]);
     				for(var i=0; i<d[0].length; i++) {
     					var pct = d[1][i] * 100 / total;
@@ -1667,17 +2042,89 @@ require([
     			var d = [];
     			if (variable == 0) {
     				if(doquery) d = groupCrash(crashType, 0);
+    				dom.byId('subvariable').innerHTML = 
+						"<option value = 0>Type of Collison</option><option value = 1>Collision Severity</option>" + 
+						"<option value = 2>Day of Week</option><option value = 3>Motor Vehicle Involved With</option>" +
+						"<option value = 4>PCF Violation Category</option>";
     				crashChart.setTitle({text: 'Type of Collision'})
+					crashChart.yAxis[0].axisTitle.attr({
+					        text: 'Collision Counts'
+					    });
     			} else if (variable == 1) {
-    				if(doquery) d = groupCrash(pcfType, 1);
-    				crashChart.setTitle({text: "PCF Violation Category"});
+    				dom.byId('subvariable').innerHTML = "<option></option>";
+    				if(doquery) d = groupCrash(pType, 11);
+    				dom.byId('subvariable').innerHTML = 
+						"<option value = 0>Part Type</option><option value = 1>Party Sobriety</option>" + 
+						"<option value = 2>Party Drug Physical</option>";
+    				crashChart.setTitle({text: "Party Type"});
+    				crashChart.yAxis[0].axisTitle.attr({
+    					text: "Paty Counts"
+    				})
     			} else if (variable == 2) {
-    				if(doquery) d = groupCrash(partyType, 2);
-    				crashChart.setTitle({text: "Motor Vehicle Involved With"});
-    			} else if (variable == 3) {
     				if(doquery) d = groupCrash(vicType, 3);
+    				dom.byId('subvariable').innerHTML = 
+						"<option value = 0>Victim Role</option><option value = 1>Victim Degree of Injury</option>" + 
+						"<option value = 2>Victim Seating Position</option><option value = 3>Victim Safety Equipment</option>" +
+						"<option value = 4>Victim Ejected</option>";
     				crashChart.setTitle({text: "Victim Role"});
+					crashChart.yAxis[0].axisTitle.attr({
+					        text: 'Victim Counts'
+					    });
     			};
+	    		crashChart.series[0].update({data: d[1]});
+	    		crashChart.xAxis[0].setCategories(d[0]);
+    		});
+
+    		on(dom.byId("subvariable"), "change", function(){
+    			var type = dom.byId("variable").value;
+    			var variable = dom.byId("subvariable").value;
+    			var d = [];
+    			if (type == 0) {
+	    			if (variable == 0) {
+	    				if(doquery) d = groupCrash(crashType, 0);
+	    				crashChart.setTitle({text: 'Type of Collision'});
+	    			} else if (variable == 1) {
+	    				if(doquery) d = groupCrash(sevType, 5);
+	    				crashChart.setTitle({text: 'Collision Severity'});
+	    			} else if (variable == 2) {
+	    				if(doquery) d = groupCrash(dowType, 6);
+	    				crashChart.setTitle({text: 'Day of Week'});
+	    			} else if (variable == 3) {
+	    				if(doquery) d = groupCrash(partyType, 2);
+	    				crashChart.setTitle({text: 'Motor Vehicle Involved With'})
+	    			} else if (variable == 4) {
+	    				if(doquery) d = groupCrash(pcfType, 1);
+	    				crashChart.setTitle({text: "PCF Violation Category"});
+	    			}
+	    		} else if (type == 1) {
+	    			if (variable == 0) {
+	    				if(doquery) d = groupCrash(pType, 11);
+	    				crashChart.setTitle({text: "Party Type"});
+	    			} else if (variable == 1) {
+	    				if(doquery) d = groupCrash(psoberType, 12);
+	    				crashChart.setTitle({text: "Party Sobriety"});
+	    			} else if (variable == 2) {
+	    				if(doquery) d = groupCrash(pdrugType, 13);
+	    				crashChart.setTitle({text: "Party Drug Physical"});
+	    			}
+	    		} else if (type == 2) {
+	    			if (variable == 0) {
+	    				if(doquery) d = groupCrash(vicType, 3);
+	    				crashChart.setTitle({text: 'Victim Role'});
+	    			} else if (variable == 1) {
+	    				if(doquery) d = groupCrash(vinjuryType, 7);
+	    				crashChart.setTitle({text: 'Victim Degree of Injury'});
+	    			} else if (variable == 2) {
+	    				if(doquery) d = groupCrash(vseatType, 8);
+	    				crashChart.setTitle({text: 'Victim Seating Position'});
+	    			} else if (variable == 3) {
+	    				if(doquery) d = groupCrash(vsafeType, 9);
+	    				crashChart.setTitle({text: 'Victim Safety Equipment'});
+	    			} else if (variable == 4) {
+	    				if(doquery) d = groupCrash(vejectType, 10);
+	    				crashChart.setTitle({text: 'Victim Ejected'});
+	    			}
+	    		};
 	    		crashChart.series[0].update({data: d[1]});
 	    		crashChart.xAxis[0].setCategories(d[0]);
     		});
@@ -1727,6 +2174,63 @@ require([
 				}
     		})
 
+
+    		on(dom.byId("refresh"), "click", function(){
+    			view.graphics.removeAll();
+    			var geometry = curGeometry;
+    			var extent = view.extent.expand(0.9);
+    			var rings = [[extent.xmin, extent.ymin], 
+    						[extent.xmax, extent.ymin],
+    						[extent.xmax, extent.ymax],
+    						[extent.xmin, extent.ymax],
+    						[extent.xmin, extent.ymin]];
+    			var polygon = new Polygon({
+    				hasZ: false,
+    				hasM: false,
+    				rings: rings,
+    				spatialReference: SpatialReference(102100)
+    			});
+    			var newPolygon = geometryEngine.intersect(geometry, polygon);
+
+    			params.geometry = newPolygon;
+
+    			var newGraphic = new Graphic({
+    				geometry: newPolygon,
+    				symbol: highlSymbol
+    			});
+
+    			
+    			params.objectIds = [];
+    			map.remove(resultsLyr);
+    			dquery(".loader").style("display", "flex");
+    			qTask.execute(params).then(function(response){
+    				var renderer = generateRenderer();
+    				var length = response.features.length;
+					var option = {
+						id: "resultsLyr",
+						fields: response.fields,
+						source: response.features,
+						objectIdField: "CASEID",
+						geometryType: "point",
+						spatialReference: response.spatialReference,
+						renderer: renderer,
+						// renderer: injuryRenderer,
+						popupTemplate: poptemplate
+					};
+					// gloabl variable
+					view.graphics.add(newGraphic);
+					resultsLyr = new FeatureLayer(option);
+					map.add(resultsLyr);
+					var html = dom.byId("printResults").innerHTML;
+					html = html.split(":");
+					dom.byId("printResults").innerHTML = html[0] + ":" + html[1] + ": " + queryTotal + " collisions found, " + length + " (" 
+					+ (parseFloat(length) * 100/queryTotal).toFixed(2) + "%) colisions mapped in current extent." + 
+					" Use the <span style='color: #003262;'>Refresh Tool</span> to zoom to areas of interest";
+					}).then(function(){
+    					dquery(".loader").style("display", "none");
+    				});
+    		});
+
     		registry.byId("tribeBond").on("change", function(isChecked){
     			if(doquery){
 	    			if(isChecked){	
@@ -1755,13 +2259,24 @@ require([
     			}
     		}, true);
 
-    		registry.byId("crs").on("change", function(isChecked){
-    			if(isChecked){
-    				crsLayer.visible = true;
-    			} else {
-    				crsLayer.visible = false;
+    		registry.byId("crsRoad").on("change", function(isChecked){
+    			var crsLyr = map.findLayerById("crsLyr");
+    			if (crsLyr) {
+	    			if(isChecked){
+	    				crsLyr.visible = true;
+	    			} else {
+	    				crsLyr.visible = false;
+	    			}
     			}
-    		})
+    		}, true);
+
+    		// registry.byId("crs").on("change", function(isChecked){
+    		// 	if(isChecked){
+    		// 		crsLayer.visible = true;
+    		// 	} else {
+    		// 		crsLayer.visible = false;
+    		// 	}
+    		// })
 
     		Highcharts.setOptions({
     			colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
@@ -1799,7 +2314,7 @@ require([
 			            '2011', '2012', '2013', '2014', '2015']
 			    },
 			    yAxis: {
-			    	title: {text: "Sum of Collisions"}
+			    	title: {text: "Collisions Counts"}
 			    },
 			    legend: {
             		enabled: false
@@ -1846,7 +2361,7 @@ require([
 			        // type: 'datetime'
 			    },
 			    yAxis: {
-		    		title: {text: "Sum of Collisions"}
+		    		title: {text: "Collision Counts"}
 		    	},
 		    	legend: {
 		    		// enabled: false
@@ -1890,7 +2405,7 @@ require([
 			    	text: 'Type of Collision'
 			    },
 			    yAxis: {
-		    		title: {text: "Sum of Collisions"}
+		    		title: {text: "Collisions Counts"}
 		    	},
 		    	// xAxis: {
 		    	// 	labels: {
@@ -1901,12 +2416,12 @@ require([
 		    	// 	}
 		    	// },
 		    	legend: {
-
+		    		enabled: false
 		    	},
 		    	credits: {enabled: false},
 			    series: [{
 			    	type: 'column',
-			        name: "Collisions",
+			    	name: 'Total',
 			        dataLabels: {
 		                enabled: true,
 		                color: '#666666',
@@ -1923,30 +2438,37 @@ require([
 			var ageChart = new Highcharts.Chart({
 			    chart: {
 			        renderTo: 'ageChart',
+			        type: 'column'
 			    },
 			    title: {
 			    	text: 'Victim Age'
 			    },
 			    yAxis: {
-		    		title: {text: "Victim Counts"}
+		    		title: {text: "Victim Counts"},
+		    		stackLabels: {
+		    			enabled: true,
+		                style: {
+		                	color:  '#666666',
+		                    fontSize: '10px',
+		                    fontFamily: 'Verdana, sans-serif'
+		                }
+		    		}
 		    	},
 		    	legend: {
 		    		enabled: false
 		    	},
 		    	credits: {enabled: false},
+		    	plotOptions: {
+		    		series: {
+		    			stacking: 'normal'
+		    		}
+		    	},
 			    series: [{
-			    	type: 'column',
-			        name: "Victim Counts",
-			        dataLabels: {
-		                enabled: true,
-		                color: '#666666',
-		                align: 'center',
-		                y: 5,
-		                style: {
-		                    fontSize: '10px',
-		                    fontFamily: 'Verdana, sans-serif'
-		                }
-            		}
+			        name: "Victim Counts - Male"
+			    }, {
+			    	name: "Victim Counts - Female"
+			    }, {
+			    	name: "Victim Counts - Not Stated"
 			    }]
 			});
 			var genderChart = new Highcharts.Chart({
